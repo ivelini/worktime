@@ -1,0 +1,74 @@
+version: "3.9"
+
+networks:
+  app-network:
+      driver: bridge
+
+services:
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: ${DOCKER_APP_NAME:-project}-nginx
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./storage/logs/nginx:/var/log/nginx/
+    ports:
+      - "${DOCKER_NGINX_PORT:-80}:80"
+    depends_on:
+      - app
+    environment:
+      TZ: ${DOCKER_WORKSPACE_TIMEZONE:-UTC}
+    networks:
+      - app-network
+
+  app:
+    image: app:php8.3-fpm
+    container_name: ${DOCKER_APP_NAME:-project}-app
+    hostname: app-service
+    build:
+      args:
+        user: ${USER}
+        uid: 1000
+      context: ./docker/php
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PHP_IDE_CONFIG: "serverName=Docker"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - ./:/var/www:cached
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: ${DOCKER_APP_NAME:-project}-postgres
+    restart: unless-stopped
+    volumes:
+        - ${DOCKER_POSTGRES_STORAGE:-./storage/database/postgres/data}:/var/lib/postgresql/data:cached
+    ports:
+        - "${DOCKER_POSTGRES_PORT:-5432}:5432"
+    environment:
+        POSTGRES_DB: ${DB_DATABASE}
+        POSTGRES_USER: ${DB_USERNAME}
+        POSTGRES_PASSWORD: ${DB_PASSWORD}
+    networks:
+        - app-network
+    healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
+
+  node:
+    image: node:latest
+    container_name: ${DOCKER_APP_NAME:-project}-node
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www
+    volumes:
+        -   ./:/var/www
+    ports:
+        - 5177:5177
+    networks:
+        - app-network
