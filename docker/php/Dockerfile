@@ -26,15 +26,33 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     wget \
-    gnupg
+    gnupg \
+    unixodbc \
+    unixodbc-dev \
+    odbcinst \
+    odbcinst1debian2 \
+    libodbc1 \
+    libqt5sql5-odbc
 
 # Install PECL and PEAR extensions
 RUN pecl install \
-    redis
+    redis \
+    sqlsrv \
+    pdo_sqlsrv
+
+RUN printf "; priority=20\nextension=sqlsrv.so\n" > /usr/local/etc/php/php.ini-development \
+    printf "; priority=30\nextension=pdo_sqlsrv.so\n" > /usr/local/etc/php/php.ini-development
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc > /etc/apt/trusted.gpg.d/microsoft.asc \
+  && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+  && apt-get update \
+  && ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
 # Enable PECL and PEAR extensions
 RUN docker-php-ext-enable \
-    redis
+    redis \
+    sqlsrv \
+    pdo_sqlsrv
 
 # Configure php extensions
 RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp

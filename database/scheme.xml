@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- SQL XML created by WWW SQL Designer, https://github.com/ondras/wwwsqldesigner/ -->
+<!-- Active URL: https://sql.toad.cz/ -->
+<sql>
+    <datatypes db="mysql">
+        <group label="Numeric" color="rgb(238,238,170)">
+            <type label="Integer" length="0" sql="INTEGER" quote=""/>
+            <type label="TINYINT" length="0" sql="TINYINT" quote=""/>
+            <type label="SMALLINT" length="0" sql="SMALLINT" quote=""/>
+            <type label="MEDIUMINT" length="0" sql="MEDIUMINT" quote=""/>
+            <type label="INT" length="0" sql="INT" quote=""/>
+            <type label="BIGINT" length="0" sql="BIGINT" quote=""/>
+            <type label="Decimal" length="1" sql="DECIMAL" re="DEC" quote=""/>
+            <type label="Single precision" length="0" sql="FLOAT" quote=""/>
+            <type label="Double precision" length="0" sql="DOUBLE" re="DOUBLE" quote=""/>
+        </group>
+
+        <group label="Character" color="rgb(255,200,200)">
+            <type label="Char" length="1" sql="CHAR" quote="'"/>
+            <type label="Varchar" length="1" sql="VARCHAR" quote="'"/>
+            <type label="Text" length="0" sql="MEDIUMTEXT" re="TEXT" quote="'"/>
+            <type label="Binary" length="1" sql="BINARY" quote="'"/>
+            <type label="Varbinary" length="1" sql="VARBINARY" quote="'"/>
+            <type label="BLOB" length="0" sql="BLOB" re="BLOB" quote="'"/>
+        </group>
+
+        <group label="Date &amp; Time" color="rgb(200,255,200)">
+            <type label="Date" length="0" sql="DATE" quote="'"/>
+            <type label="Time" length="0" sql="TIME" quote="'"/>
+            <type label="Datetime" length="0" sql="DATETIME" quote="'"/>
+            <type label="Year" length="0" sql="YEAR" quote=""/>
+            <type label="Timestamp" length="0" sql="TIMESTAMP" quote="'"/>
+        </group>
+
+        <group label="Miscellaneous" color="rgb(200,200,255)">
+            <type label="ENUM" length="1" sql="ENUM" quote=""/>
+            <type label="SET" length="1" sql="SET" quote=""/>
+            <type label="Bit" length="0" sql="bit" quote=""/>
+        </group>
+    </datatypes><table x="223" y="511" name="personnel_employee">
+    <row name="id" null="1" autoincrement="1">
+        <datatype>INTEGER</datatype>
+        <default>NULL</default></row>
+    <row name="position_id" null="1" autoincrement="0">
+        <datatype>INTEGER</datatype>
+        <default>NULL</default><relation table="personnel_position" row="id" />
+    </row>
+    <row name="status" null="1" autoincrement="0">
+        <datatype>INTEGER</datatype>
+        <default>NULL</default></row>
+    <row name="first_name" null="1" autoincrement="0">
+        <datatype>INTEGER</datatype>
+        <default>NULL</default></row>
+    <row name="last_name" null="1" autoincrement="0">
+        <datatype>INTEGER</datatype>
+        <default>NULL</default></row>
+    <key type="PRIMARY" name="">
+        <part>id</part>
+    </key>
+    <comment>Сотрудники</comment>
+</table>
+    <table x="90" y="458" name="personnel_position">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="position_name" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Должность</comment>
+    </table>
+    <table x="610" y="673" name="att_attshift">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="alias" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Смены</comment>
+    </table>
+    <table x="580" y="796" name="att_timeinterval">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="alias" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="in_time" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Время прихода</comment>
+        </row>
+        <row name="work_time_duration" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Продолжительность рабочей смены</comment>
+        </row>
+        <row name="early_in" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Признак смещения слева</comment>
+        </row>
+        <row name="min_early_in" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Смещение слева обычной работы</comment>
+        </row>
+        <row name="late_out" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Признак смещения справа</comment>
+        </row>
+        <row name="min_late_out" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Смещение справа обычной работы</comment>
+        </row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Рассписание</comment>
+    </table>
+    <table x="581" y="1047" name="att_breaktime">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="alias" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="period_start" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Начало</comment>
+        </row>
+        <row name="duration" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Продолжительность</comment>
+        </row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Перерыв</comment>
+    </table>
+    <table x="718" y="979" name="att_timeinterval_break_time">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="timeinterval_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="att_timeinterval" row="id" />
+        </row>
+        <row name="breaktime_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="att_breaktime" row="id" />
+        </row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+    </table>
+    <table x="729" y="732" name="att_shiftdetail">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="shift_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="att_attshift" row="id" />
+        </row>
+        <row name="time_interval_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="att_timeinterval" row="id" />
+        </row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+    </table>
+    <table x="726" y="552" name="att_attschedule">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="employee_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="personnel_employee" row="id" />
+        </row>
+        <row name="shift_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="att_attshift" row="id" />
+        </row>
+        <row name="start_date" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="end_date" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Назначенное сотруднику рассписание</comment>
+    </table>
+    <table x="685" y="51" name="payroll_salaryadvance">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="employee_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="personnel_employee" row="id" />
+        </row>
+        <row name="advance_amount" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="advance_time" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="advance_remark" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Пометка "Ежемесячный" - начисление ежемесячно</comment>
+        </row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Аванс</comment>
+    </table>
+    <table x="644" y="402" name="payroll_increasementformula">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="name" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="formula" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Формула начисления зарплаты</comment>
+    </table>
+    <table x="682" y="229" name="payroll_salarystructure">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="employee_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="personnel_employee" row="id" />
+        </row>
+        <row name="effective_date" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Действительная дата</comment>
+        </row>
+        <row name="salary_amount" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Структура оплаты</comment>
+    </table>
+    <table x="876" y="333" name="payroll_salarystructure_increasementformula">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="salarystructure_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="payroll_salarystructure" row="id" />
+        </row>
+        <row name="increasementformula_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="payroll_increasementformula" row="id" />
+        </row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+    </table>
+    <table x="304" y="624" name="iclock_transaction">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="emp_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="personnel_employee" row="id" />
+        </row>
+        <row name="punch_time" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Отметки сотрудников в системе</comment>
+    </table>
+</sql>
