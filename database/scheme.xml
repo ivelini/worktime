@@ -37,7 +37,7 @@
             <type label="SET" length="1" sql="SET" quote=""/>
             <type label="Bit" length="0" sql="bit" quote=""/>
         </group>
-    </datatypes><table x="223" y="511" name="personnel_employee">
+    </datatypes><table x="199" y="620" name="personnel_employee">
     <row name="id" null="1" autoincrement="1">
         <datatype>INTEGER</datatype>
         <default>NULL</default></row>
@@ -59,7 +59,7 @@
     </key>
     <comment>Сотрудники</comment>
 </table>
-    <table x="90" y="458" name="personnel_position">
+    <table x="66" y="567" name="personnel_position">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -192,7 +192,7 @@
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>
-        <comment>Назначенное сотруднику рассписание</comment>
+        <comment>Назначенные сотруднику смены</comment>
     </table>
     <table x="685" y="51" name="payroll_salaryadvance">
         <row name="id" null="1" autoincrement="1">
@@ -268,7 +268,7 @@
             <part>id</part>
         </key>
     </table>
-    <table x="304" y="624" name="iclock_transaction">
+    <table x="280" y="733" name="iclock_transaction">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>

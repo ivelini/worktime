@@ -11,17 +11,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $emp_id
- * @property Carbon $punch_time //Временная отметка
+ * @property int $advance_amount
+ * @property Carbon $advance_time //Временная отметка
+ * @property string $advance_remark
  */
-class Transaction extends Model
+class Advance extends Model
 {
     protected $connection = 'biotime';
-    protected $table = 'iclock_transaction';
+    protected $table = 'payroll_salaryadvance';
+
+    public static string $EVERY_MONTH = 'Ежемесячный'; // Аванс ежемесячный
 
     protected function casts(): array
     {
         return [
-            'punch_time' => 'datetime'
+            'advance_time' => 'datetime',
+            'advance_amount' => 'integer'
         ];
     }
 
@@ -30,6 +35,6 @@ class Transaction extends Model
      */
     public function employee(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'empl_id', 'id');
+        return $this->belongsTo(Employee::class, 'employee_id', 'id');
     }
 }

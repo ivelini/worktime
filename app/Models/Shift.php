@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * Смена
  *
  * @property int $id
- * @property string $alias      //Название
+ * @property string $alias              //Название
+ * @property ?EmployeeShift $graph     //График смен для сотрудника
  */
 class Shift extends Model
 {

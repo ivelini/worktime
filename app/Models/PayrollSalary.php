@@ -13,19 +13,15 @@ use Illuminate\Support\Facades\DB;
  *
  * @property int $id
  * @property int $employee_id
- * @property Carbon $effective_date
- * @property int $salary_amount //Оклад
+ * @property Carbon $effective_date     //Дата начала начисления
+ * @property int $salary_amount         //Оклад
  *
- * @property ?int $per_pay_hour
- * @property Collection $advances
+ * @property ?int $pay_per_hour         //Оплата за час работы
  */
 class PayrollSalary extends Model
 {
     protected $connection = 'biotime';
     protected $table = 'payroll_salarystructure';
-
-    //Тип аванса - ежемесячный
-    public static $ADVANCE_AMOUNT_EVERYMONTH = 'Ежемесячный';
 
     public function casts(): array
     {
@@ -54,26 +50,6 @@ class PayrollSalary extends Model
                 ?->formula;
 
             return !empty($formula) ? (int) substr($formula, strpos($formula, '*') + 1) : null;
-        });
-    }
-
-    /**
-     * Авансы
-     */
-    public function advances(): Attribute
-    {
-        return Attribute::get(function () {
-            return DB::connection('biotime')
-                ->table('payroll_salaryadvance')
-                ->where('employee_id', $this->employee_id)
-                ->orderBy('advance_time', 'DESC')
-                ->get()
-                ->map(fn($item) => [
-                    'id' => $item->id,
-                    'advance_amount' => (int) $item->advance_amount,
-                    'advance_time' => Carbon::parse($item->advance_time),
-                    'is_every_month' => self::$ADVANCE_AMOUNT_EVERYMONTH == $item->advance_remark,
-                ]);
         });
     }
 }
