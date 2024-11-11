@@ -5,12 +5,9 @@ use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return to_route('report.timesheet');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -21,6 +18,8 @@ Route::middleware('auth')->group(function () {
 
 Route::prefix('report')->group(function () {
     Route::get('timesheet', [ReportController::class, 'timeSheet'])->name('report.timesheet');
+    Route::get('payrollheet', [ReportController::class, 'payrollSheet'])->name('report.payrollsheet');
+
 });
 
 require __DIR__.'/auth.php';

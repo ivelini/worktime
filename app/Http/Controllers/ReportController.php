@@ -3,56 +3,143 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
-use App\Models\PayrollSalary;
-use App\Models\TimeInterval;
-use App\Models\Shift;
-use App\Models\Transaction;
+use App\Models\SheetTime;
+use App\Repositories\TransactionsRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
     public function timeSheet(Request $request)
     {
-        $startAt = Carbon::parse($request->input('start_at'))->startOfDay()->format('Ymd H:i');
-        $endAt = Carbon::parse($request->input('end_at'))->endOfDay()->format('Ymd H:i');
+        $startAt = !empty($request->input('start_at'))
+            ? Carbon::parse($request->input('start_at'))->startOfDay()
+            : now()->startOfMonth()->startOfDay();
+
+        $endAt = !empty($request->input('end_at'))
+            ? Carbon::parse($request->input('end_at'))->endOfDay()
+            : now()->endOfMonth()->endOfDay();
+
+        $sheetTimeRows = SheetTime::query()
+                ->selectRaw("
+                    sheet_time.*,
+                    SUM(sheet_time.duration) OVER (PARTITION BY sheet_time.emp_id) as month_duration
+                ")
+                ->whereBetween('date', [$startAt, $endAt])
+                ->orderBy('emp_id')
+                ->orderBy('date')
+                ->get()
+                ->groupBy(fn($employee) => $employee->emp_id. ', ' .$employee->surname. ' ' .$employee->name. ', ' .$employee->position)
+                ->map(function ($groupedMonthEmployee) use ($startAt, $endAt) {
+
+                    /** @var Collection $groupedMonthEmployee */
+                    $data = collect();
+                    $i = clone $startAt;
+                    for($i->dayOfCentury; $i->dayOfCentury <= $endAt->dayOfCentury; $i->addDay()) {
+                        $sheetTimeCurrenDay = $groupedMonthEmployee->first(fn(SheetTime $sheetTime) => $i == $sheetTime->date);
+
+                        $prepareSheetTimeCurrentDay = [
+                            'date' => $i->format('d-m-Y'),
+                            'dey_of_the_week' => $i->localeDayOfWeek,
+                            'schedule_name' => $groupedMonthEmployee[0]->schedule_name,
+                        ];
+
+                        if(!empty($sheetTimeCurrenDay)) {
+                            $prepareSheetTimeCurrentDay['min_time'] = $sheetTimeCurrenDay->prepare_min_time;
+                            $prepareSheetTimeCurrentDay['max_time'] = $sheetTimeCurrenDay->prepare_max_time;
+                            $prepareSheetTimeCurrentDay['duration'] = $sheetTimeCurrenDay->duration;
+                        } else {
+                            $prepareSheetTimeCurrentDay['min_time'] = '';
+                            $prepareSheetTimeCurrentDay['max_time'] = '';
+                            $prepareSheetTimeCurrentDay['duration'] = '';
+                        }
+                        $data->push($prepareSheetTimeCurrentDay);
+                    }
+
+                    $data->push([
+                            'date' => 'Статистика',
+                            'dey_of_the_week' => '',
+                            'schedule_name' => '',
+                            'min_time' => '',
+                            'max_time' => '',
+                            'duration' => $groupedMonthEmployee[0]->month_duration
+                        ]
+                    );
+                    return $data;
+                });
+
+        return view('timesheet', compact('sheetTimeRows', 'startAt', 'endAt'));
+    }
+
+    public function payrollSheet(Request $request)
+    {
+        $startAt = !empty($request->input('start_at'))
+            ? Carbon::parse($request->input('start_at'))->startOfDay()
+            : now()->startOfMonth()->startOfDay();
+
+        $endAt = !empty($request->input('end_at'))
+            ? Carbon::parse($request->input('end_at'))->endOfDay()
+            : now()->endOfMonth()->endOfDay();
+
+        $salaryPayEmployees = SheetTime::query()
+                ->selectRaw("
+                    MAX(emp_id) as emp_id,
+                    concat(MAX(surname), ' ', MAX(name)) as fio,
+                    MAX(position) as position,
+                    SUM(duration) as month_duration,
+                    MAX(salary_amount) as salary_amount,
+                    MAX(advance) as advance,
+                    MAX(per_pay_hour) as per_pay_hour,
+                    (COALESCE(MAX(salary_amount), 0) + SUM(duration) * COALESCE(MAX(per_pay_hour), 0)) - COALESCE(MAX(advance), 0) as salary_pay
+                ")
+                ->whereBetween('date', [$startAt, $endAt])
+                ->groupBy('emp_id')
+                ->orderBy('emp_id')
+                ->get();
 
 
-        dd(DB::connection('biotime')
-            ->table('iclock_transaction')
-            ->selectRaw("
-                iclock_transaction.emp_id,
-                max(personnel_employee.last_name) as surname,
-                max(personnel_employee.first_name) as name,
-                max(personnel_position.position_name) as position,
-                CAST(iclock_transaction.punch_time as date) as date,
-                MIN(CAST(iclock_transaction.punch_time as time)) as min_time,
-                MAX(CAST(iclock_transaction.punch_time as time)) as max_time
-            ")
-            ->join('personnel_employee', 'iclock_transaction.emp_id', '=', 'personnel_employee.id')
-            ->join('personnel_position', 'personnel_employee.position_id', '=', 'personnel_position.id')
-            ->whereBetween('punch_time', [$startAt, $endAt])
-            ->groupByRaw("iclock_transaction.emp_id, CAST(iclock_transaction.punch_time as date)")
-            ->orderBy('iclock_transaction.emp_id')
+        //Получаем пользователей, которые не отмечаются в системе
+        $salaryPayNotPunchEmployees = Employee::query()
+            ->whereIn('id', DB::connection('biotime')
+                ->table('personnel_employee')
+                ->select('personnel_employee.id')
+                ->where('personnel_employee.status', '=', 0)
+                ->pluck('id')
+                ->diff($salaryPayEmployees->pluck('emp_id'))
+                ->values()
+            )
+            ->with('position')
             ->get()
-            ->map(function ($rawPunchDay) {
-                /** @var Employee $employee */
-                $employee = Employee::findOrFail($rawPunchDay->emp_id);
+            ->map(function (Employee $employee) {
 
-                //Загружаем отношения, если не загружены
-                if(count(array_diff(['shifts'], array_keys($employee->getRelations()))) > 0) {
-                    $employee->load(['shifts']);
-                }
+                $sheetTime = new SheetTime([
+                    'emp_id' => $employee->id,
+                    'position' => $employee->position->position_name,
+                    'month_duration' => '',
+                    'salary_amount' => $employee->getCurrentPayroll(now())?->salary_amount,
+                    'per_pay_hour' => '',
+                ]);
 
-                //Получаем смену
-                $shift = $employee->getCurrentShift($rawPunchDay->date);        //Смена
+                $sheetTime->fio = $employee->last_name. ' ' .$employee->first_name;
+                $sheetTime->advance = $employee->getCurrentAdvance(now())?->advance_amount;
+                $sheetTime->salary_pay = $employee->getCurrentPayroll(now())?->salary_amount - $employee->getCurrentAdvance(now())?->advance_amount;
 
-                dd($shift->graph);
+                return $sheetTime;
+            });
 
-                return [
-                    'id' => $rawPunchDay->emp_id
-                ];
-            }));
+
+        $allSalaryPay = $salaryPayEmployees->concat($salaryPayNotPunchEmployees)->sortBy('emp_id')->values();
+
+        $fullAdvance = $allSalaryPay->sum('advance');
+        $fullSalaryPay = $allSalaryPay->sum('salary_pay');
+
+        return view('payrollsheet', compact(
+            'allSalaryPay',
+            'fullAdvance',
+            'fullSalaryPay',
+            'startAt',
+            'endAt'));
     }
 }

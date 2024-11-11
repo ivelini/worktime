@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Должность сотрудника системы учета
  *
- * @property string $alias
+ * @property string $position_name
  */
 class Position extends Model
 {
