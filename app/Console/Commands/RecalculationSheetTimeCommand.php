@@ -7,6 +7,7 @@ use App\Models\SheetTime;
 use App\Repositories\TransactionsRepository;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class RecalculationSheetTimeCommand extends Command
 {
@@ -40,8 +41,13 @@ class RecalculationSheetTimeCommand extends Command
             $end = now();
         }
 
+        //Отмечающиеся сотрудники
+        $punchEmployeeIds = collect();
         TransactionsRepository::getGroupedUserAndDayIntoMaxAndMinPunchTimePoint($start, $end)
-            ->each(function ($rawPunchDay, $index) {
+            ->each(function ($rawPunchDay, $index) use(&$punchEmployeeIds) {
+
+                $punchEmployeeIds->push($rawPunchDay->emp_id);
+
                 /** @var Employee $employee */
                 $employee = Employee::findOrFail($rawPunchDay->emp_id);
 
@@ -89,22 +95,18 @@ class RecalculationSheetTimeCommand extends Command
                         default => false,
                     };
 
-                    try {
-                        //Вычитаем перерыв, если есть
-                        $workDuration = (!empty($shift->timeInterval->breaktime) && $maxTime > $shift->timeInterval->breaktime->period_end)
-                            ? (clone $maxTime)
-                                ->subMinutes($shift
-                                    ->timeInterval
-                                    ->breaktime
-                                    ->duration)
-                                ->diff($minTime)
-                                ->hours
-                            : $maxTime
-                                ->diff($minTime)
-                                ->hours;
-                    } catch (\Throwable $exception) {
-                        dd($rawPunchDay, $maxTime, $minTime);
-                    }
+                    //Вычитаем перерыв, если есть
+                    $workDuration = (!empty($shift->timeInterval->breaktime) && $maxTime > $shift->timeInterval->breaktime->period_end)
+                        ? (clone $maxTime)
+                            ->subMinutes($shift
+                                ->timeInterval
+                                ->breaktime
+                                ->duration)
+                            ->diff($minTime)
+                            ->hours
+                        : $maxTime
+                            ->diff($minTime)
+                            ->hours;
 
                     $rawPunchDay->work_min_time = $minTime->format('H:i');
                     $rawPunchDay->work_max_time = $maxTime->format('H:i');
@@ -125,6 +127,52 @@ class RecalculationSheetTimeCommand extends Command
                     (array) $rawPunchDay
                 );
                 $this->info('index: ' .$index);
+            });
+
+        //Получаем пользователей, у которых нет отметок в системе
+        Employee::query()
+            ->whereIn('id', DB::connection('biotime')
+                ->table('personnel_employee')
+                ->select('personnel_employee.id')
+                ->where('personnel_employee.status', '=', 0)
+                ->pluck('id')
+                ->diff($punchEmployeeIds->unique()->values())
+                ->values()
+            )
+            ->with('position')
+            ->get()
+            ->each(function (Employee $employee) use ($start, $end) {
+
+                $sheetTime = [
+                    'emp_id' => $employee->id,
+                    'emp_code' => $employee->emp_code,
+                    'surname' => !empty($employee->last_name) ? $employee->last_name : '',
+                    'name' => $employee->first_name,
+                    'position' => $employee->position->position_name,
+                    'schedule_name' => '',
+                    'min_time' => null,
+                    'max_time' => null,
+                    'work_min_time' => null,
+                    'work_max_time' => null,
+                    'duration' => null,
+                    'salary_amount' => $employee->getCurrentPayroll(now())?->salary_amount,
+                    'per_pay_hour' => $employee->getCurrentPayroll(now())?->pay_per_hour,
+                    'advance' => $employee->getCurrentAdvance(now())?->advance_amount,
+                ];
+
+                $i = clone $start;
+                for($i->dayOfCentury; $i->dayOfCentury <= $end->dayOfCentury; $i->addDay()) {
+
+                    SheetTime::updateOrCreate(
+                        [
+                            'emp_id' => $sheetTime['emp_id'],
+                            'date' => $i,
+                        ],
+                        $sheetTime
+                    );
+                }
+
+                $this->info('userId: ' .$sheetTime['emp_id']);
             });
     }
 }

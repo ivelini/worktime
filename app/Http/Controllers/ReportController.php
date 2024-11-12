@@ -20,7 +20,7 @@ class ReportController extends Controller
 
         $endAt = !empty($request->input('end_at'))
             ? Carbon::parse($request->input('end_at'))->endOfDay()
-            : now()->endOfMonth()->endOfDay();
+            : now()->endOfDay();
 
         $sheetTimeRows = SheetTime::query()
                 ->selectRaw("
@@ -28,10 +28,11 @@ class ReportController extends Controller
                     SUM(sheet_time.duration) OVER (PARTITION BY sheet_time.emp_id) as month_duration
                 ")
                 ->whereBetween('date', [$startAt, $endAt])
-                ->orderBy('emp_id')
+                ->whereNotNull(['min_time', 'work_min_time'])
+                ->orderBy('emp_code')
                 ->orderBy('date')
                 ->get()
-                ->groupBy(fn($employee) => $employee->emp_id. ', ' .$employee->surname. ' ' .$employee->name. ', ' .$employee->position)
+                ->groupBy(fn($employee) => $employee->emp_code. ', ' .$employee->surname. ' ' .$employee->name. ', ' .$employee->position)
                 ->map(function ($groupedMonthEmployee) use ($startAt, $endAt) {
 
                     /** @var Collection $groupedMonthEmployee */
@@ -86,57 +87,28 @@ class ReportController extends Controller
         $salaryPayEmployees = SheetTime::query()
                 ->selectRaw("
                     MAX(emp_id) as emp_id,
+                    MAX(emp_code) as emp_code,
                     concat(MAX(surname), ' ', MAX(name)) as fio,
                     MAX(position) as position,
                     SUM(duration) as month_duration,
                     MAX(salary_amount) as salary_amount,
                     MAX(advance) as advance,
                     MAX(per_pay_hour) as per_pay_hour,
-                    (COALESCE(MAX(salary_amount), 0) + SUM(duration) * COALESCE(MAX(per_pay_hour), 0)) - COALESCE(MAX(advance), 0) as salary_pay
+                    GREATEST(
+                        (COALESCE(MAX(salary_amount), 0) + COALESCE(SUM(duration), 0) * COALESCE(MAX(per_pay_hour), 0)) - COALESCE(MAX(advance), 0),
+                        0
+                    ) as salary_pay
                 ")
                 ->whereBetween('date', [$startAt, $endAt])
                 ->groupBy('emp_id')
                 ->orderBy('emp_id')
                 ->get();
 
-
-        //Получаем пользователей, которые не отмечаются в системе
-        $salaryPayNotPunchEmployees = Employee::query()
-            ->whereIn('id', DB::connection('biotime')
-                ->table('personnel_employee')
-                ->select('personnel_employee.id')
-                ->where('personnel_employee.status', '=', 0)
-                ->pluck('id')
-                ->diff($salaryPayEmployees->pluck('emp_id'))
-                ->values()
-            )
-            ->with('position')
-            ->get()
-            ->map(function (Employee $employee) {
-
-                $sheetTime = new SheetTime([
-                    'emp_id' => $employee->id,
-                    'position' => $employee->position->position_name,
-                    'month_duration' => '',
-                    'salary_amount' => $employee->getCurrentPayroll(now())?->salary_amount,
-                    'per_pay_hour' => '',
-                ]);
-
-                $sheetTime->fio = $employee->last_name. ' ' .$employee->first_name;
-                $sheetTime->advance = $employee->getCurrentAdvance(now())?->advance_amount;
-                $sheetTime->salary_pay = $employee->getCurrentPayroll(now())?->salary_amount - $employee->getCurrentAdvance(now())?->advance_amount;
-
-                return $sheetTime;
-            });
-
-
-        $allSalaryPay = $salaryPayEmployees->concat($salaryPayNotPunchEmployees)->sortBy('emp_id')->values();
-
-        $fullAdvance = $allSalaryPay->sum('advance');
-        $fullSalaryPay = $allSalaryPay->sum('salary_pay');
+        $fullAdvance = $salaryPayEmployees->sum('advance');
+        $fullSalaryPay = $salaryPayEmployees->sum('salary_pay');
 
         return view('payrollsheet', compact(
-            'allSalaryPay',
+            'salaryPayEmployees',
             'fullAdvance',
             'fullSalaryPay',
             'startAt',

@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\DB;
 
 class TransactionsRepository
 {
+    /**
+     * Получение крайних отметок за день в интервале дней, сгруппированных по сотрудникам.
+     *
+     * @param Carbon|string $startAt
+     * @param Carbon|string $endAt
+     * @return Collection
+     */
     public static function getGroupedUserAndDayIntoMaxAndMinPunchTimePoint(Carbon|string $startAt, Carbon|string $endAt): Collection
     {
         if (!($startAt instanceof Carbon)) {
@@ -23,6 +30,7 @@ class TransactionsRepository
             ->table('iclock_transaction')
             ->selectRaw("
                 iclock_transaction.emp_id,
+                max(iclock_transaction.emp_code) as emp_code,
                 max(personnel_employee.last_name) as surname,
                 max(personnel_employee.first_name) as name,
                 max(personnel_position.position_name) as position,

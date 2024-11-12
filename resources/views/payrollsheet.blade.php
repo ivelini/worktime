@@ -48,9 +48,14 @@
 
             <li class="nav-item dropdown pe-3">
 
-                <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#">
-                    Выход
-                </a><!-- End Profile Iamge Icon -->
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+
+                    <button class="nav-link nav-profile d-flex align-items-center pe-0" type="submit">
+                        Выход
+                    </button>
+                </form>
+                <!-- End Profile Iamge Icon -->
             </li><!-- End Profile Nav -->
 
         </ul>
@@ -129,9 +134,9 @@
                             </tr>
                             </thead>
                             <tbody>
-                                @foreach($allSalaryPay as $payEmployee)
+                                @foreach($salaryPayEmployees as $payEmployee)
                                     <tr>
-                                        <td>{{ $payEmployee->emp_id }}</td>
+                                        <td>{{ $payEmployee->emp_code }}</td>
                                         <td>{{ $payEmployee->fio }}</td>
                                         <td>{{ $payEmployee->position }}</td>
                                         <td>{{ $payEmployee->salary_amount }}</td>

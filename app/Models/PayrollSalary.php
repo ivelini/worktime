@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\SalaryAmountCast;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +28,7 @@ class PayrollSalary extends Model
     {
         return [
             'effective_date' => 'datetime',
-            'salary_amount' => 'integer',
+            'salary_amount' => SalaryAmountCast::class,
         ];
     }
 

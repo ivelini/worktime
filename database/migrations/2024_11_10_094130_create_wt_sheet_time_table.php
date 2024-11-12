@@ -14,14 +14,15 @@ return new class extends Migration
         Schema::create('sheet_time', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('emp_id');
+            $table->bigInteger('emp_code');
             $table->string('surname');
             $table->string('name');
             $table->timestamp('date');
             $table->string('schedule_name');
             $table->string('position');
-            $table->string('min_time');
+            $table->string('min_time')->nullable();
             $table->string('max_time')->nullable();
-            $table->string('work_min_time');
+            $table->string('work_min_time')->nullable();
             $table->string('work_max_time')->nullable();
             $table->integer('duration')->nullable();
             $table->integer('advance')->nullable();

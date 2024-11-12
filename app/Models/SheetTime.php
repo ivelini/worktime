@@ -32,6 +32,7 @@ class SheetTime extends Model
 
     protected $fillable = [
         'emp_id',
+        'emp_code',
         'surname',
         'name',
         'date',

@@ -48,9 +48,13 @@
 
             <li class="nav-item dropdown pe-3">
 
-                <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#">
-                    Выход
-                </a><!-- End Profile Iamge Icon -->
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+
+                    <button class="nav-link nav-profile d-flex align-items-center pe-0" type="submit">
+                        Выход
+                    </button>
+                </form>
             </li><!-- End Profile Nav -->
 
         </ul>
@@ -101,7 +105,7 @@
                                 </div>
                                 <div class="col-sm-3">
                                     <a href="{{ route('report.timesheet', ['start_at' => now()->subMonth()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->subMonth()->endOfMonth()->format('Y-m-d')]) }}">Прошлый месяц&nbsp;&nbsp;&nbsp;</a>
-                                    <a href="{{ route('report.timesheet', ['start_at' => now()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->endOfMonth()->format('Y-m-d')]) }}">&nbsp;&nbsp;&nbsp; Этот месяц </a>
+                                    <a href="{{ route('report.timesheet', ['start_at' => now()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->format('Y-m-d')]) }}">&nbsp;&nbsp;&nbsp; Этот месяц </a>
                                 </div>
                             </div>
                         </form>
