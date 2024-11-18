@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -18,13 +19,8 @@ class TransactionsRepository
      */
     public static function getGroupedUserAndDayIntoMaxAndMinPunchTimePoint(Carbon|string $startAt, Carbon|string $endAt): Collection
     {
-        if (!($startAt instanceof Carbon)) {
-            $startAt = Carbon::parse($startAt);
-        }
-
-        if (!($endAt instanceof Carbon)) {
-            $endAt = Carbon::parse($endAt);
-        }
+        $startAt = self::typeCastCarbon($startAt);
+        $endAt = self::typeCastCarbon($endAt);
 
         return DB::connection('biotime')
             ->table('iclock_transaction')
@@ -49,5 +45,13 @@ class TransactionsRepository
             ->groupByRaw("iclock_transaction.emp_id, CAST(iclock_transaction.punch_time as date)")
             ->orderBy('iclock_transaction.emp_id')
             ->get();
+    }
+
+    /**
+     * Приводим дату к типу Carbon
+     */
+    private static function typeCastCarbon(Carbon|string $date): Carbon
+    {
+        return !($date instanceof Carbon) ? Carbon::parse($date) : $date;
     }
 }

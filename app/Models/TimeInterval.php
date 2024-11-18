@@ -31,6 +31,16 @@ class TimeInterval extends Model
     protected $connection = 'biotime';
     protected $table = 'att_timeinterval';
 
+    protected $fillable = [
+        'alias',
+        'in_time',
+        'work_time_duration',
+        'early_in',
+        'min_early_in',
+        'late_out',
+        'min_late_out',
+    ];
+
     protected function casts(): array
     {
         return [

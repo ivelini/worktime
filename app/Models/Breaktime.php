@@ -21,6 +21,12 @@ class Breaktime extends Model
     protected $connection = 'biotime';
     protected $table = 'att_breaktime';
 
+    protected $fillable = [
+        'alias',
+        'period_start',
+        'duration',
+    ];
+
     protected function casts(): array
     {
         return [

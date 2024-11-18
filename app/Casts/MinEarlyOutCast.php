@@ -15,9 +15,9 @@ class MinEarlyOutCast implements CastsAttributes
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-
-        return Carbon::parse($attributes['in_time'])
-            ->setDate(now()->year, now()->month, now()->day)
+        $date = Carbon::parse($attributes['in_time']);
+        return $date
+            ->setDate($date->year, $date->month, $date->day)
             ->addMinutes((int) $attributes['work_time_duration'] + (int) $value);
     }
 

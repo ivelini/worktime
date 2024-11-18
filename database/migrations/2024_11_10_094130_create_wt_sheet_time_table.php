@@ -28,6 +28,7 @@ return new class extends Migration
             $table->integer('advance')->nullable();
             $table->integer('salary_amount')->nullable();
             $table->integer('per_pay_hour')->nullable();
+            $table->boolean('is_night')->default(false);
             $table->timestamps();
         });
     }

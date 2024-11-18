@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -11,7 +12,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $emp_id
- * @property Carbon $punch_time //Временная отметка
+ * @property Carbon $punch_time         //Временная отметка
+ * @property string $time_to_string     //Время строкой
+ * @property string $date_to_string     //Дата строкой
  */
 class Transaction extends Model
 {
@@ -23,6 +26,22 @@ class Transaction extends Model
         return [
             'punch_time' => 'datetime'
         ];
+    }
+
+    /**
+     * Время строкой
+     */
+    protected function timeToString(): Attribute
+    {
+        return Attribute::get(fn() => $this->punch_time->format('H:i'));
+    }
+
+    /**
+     * Дата строкой
+     */
+    protected function dateToString(): Attribute
+    {
+        return Attribute::get(fn() => $this->punch_time->format('Y-m-d'));
     }
 
     /**

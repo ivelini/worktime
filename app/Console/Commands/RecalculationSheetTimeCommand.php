@@ -16,7 +16,9 @@ class RecalculationSheetTimeCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'recalculation:sheet-time {--start= : Начало периода} {--end= : Конец периода}';
+    protected $signature = 'recalculation:sheet-time
+                                    {start? : Начало периода}
+                                    {end? : Конец периода}';
 
     /**
      * The console command description.
@@ -30,21 +32,29 @@ class RecalculationSheetTimeCommand extends Command
      */
     public function handle()
     {
-        //Проверка входящий параметров
-        if (!empty($this->option('start')) && !empty($this->option('end'))) {
-
-            $start = Carbon::parse($this->option('start'));
-            $end = Carbon::parse($this->option('end'));
-        } else {
-
-            $start = now()->startOfMonth();
-            $end = now();
-        }
+        $start = !empty($this->argument('start'))
+            ? Carbon::parse($this->argument('start'))->startOfDay()
+            : now()->startOfMonth()->startOfDay();
+        $end = !empty($this->argument('end'))
+            ? Carbon::parse($this->argument('end'))->endOfDay()
+            : now()->endOfDay();
 
         //Отмечающиеся сотрудники
         $punchEmployeeIds = collect();
         TransactionsRepository::getGroupedUserAndDayIntoMaxAndMinPunchTimePoint($start, $end)
             ->each(function ($rawPunchDay, $index) use(&$punchEmployeeIds) {
+
+                //Проверяем не помечена ли данная смена как ночная
+                $isNight = SheetTime::query()
+                    ->where('emp_id', $rawPunchDay->emp_id)
+                    ->where('date', $rawPunchDay->date)
+                    ->where('is_night', true)
+                    ->exists();
+
+                // Пропускаем ночные смены
+                if($isNight) {
+                    return;
+                }
 
                 $punchEmployeeIds->push($rawPunchDay->emp_id);
 

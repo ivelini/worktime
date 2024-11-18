@@ -41,21 +41,28 @@ class ReportController extends Controller
                     for($i->dayOfCentury; $i->dayOfCentury <= $endAt->dayOfCentury; $i->addDay()) {
                         $sheetTimeCurrenDay = $groupedMonthEmployee->first(fn(SheetTime $sheetTime) => $i == $sheetTime->date);
 
+
                         $prepareSheetTimeCurrentDay = [
                             'date' => $i->format('d-m-Y'),
                             'dey_of_the_week' => $i->localeDayOfWeek,
                             'schedule_name' => $groupedMonthEmployee[0]->schedule_name,
                         ];
 
+
                         if(!empty($sheetTimeCurrenDay)) {
+                            $prepareSheetTimeCurrentDay['sheet_time_id'] = $sheetTimeCurrenDay->id;
                             $prepareSheetTimeCurrentDay['min_time'] = $sheetTimeCurrenDay->prepare_min_time;
                             $prepareSheetTimeCurrentDay['max_time'] = $sheetTimeCurrenDay->prepare_max_time;
                             $prepareSheetTimeCurrentDay['duration'] = $sheetTimeCurrenDay->duration;
+                            $prepareSheetTimeCurrentDay['is_night'] = $sheetTimeCurrenDay->is_night;
                         } else {
+                            $prepareSheetTimeCurrentDay['sheet_time_id'] = null;
                             $prepareSheetTimeCurrentDay['min_time'] = '';
                             $prepareSheetTimeCurrentDay['max_time'] = '';
                             $prepareSheetTimeCurrentDay['duration'] = '';
+                            $prepareSheetTimeCurrentDay['is_night'] = false;
                         }
+
                         $data->push($prepareSheetTimeCurrentDay);
                     }
 
@@ -65,7 +72,8 @@ class ReportController extends Controller
                             'schedule_name' => '',
                             'min_time' => '',
                             'max_time' => '',
-                            'duration' => $groupedMonthEmployee[0]->month_duration
+                            'is_night' => '',
+                            'duration' => $groupedMonthEmployee[0]->month_duration,
                         ]
                     );
                     return $data;

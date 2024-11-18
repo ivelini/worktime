@@ -141,12 +141,45 @@
                                     </tr>
 
 
+
                                     @foreach($sheetTimeRowsEmployee as $sheetTime)
 
                                         <tr>
                                             <td>{{ $sheetTime['date'] }}</td>
                                             <td>{{ $sheetTime['dey_of_the_week'] }}</td>
-                                            <td>{{ $sheetTime['schedule_name'] }}</td>
+                                            <td style="overflow: hidden">
+                                                @if($sheetTime['is_night'])
+                                                    <div style="float: left">20:00-08:00 (ночное)</div>
+                                                @else
+                                                    <div style="float: left">{{ $sheetTime['schedule_name'] }}</div>
+                                                @endif
+
+
+                                                @if(strpos($key, 'Печник') && !$loop->last)
+
+                                                    <div style="float: right;">
+
+
+                                                            @if($sheetTime['is_night'])
+
+                                                                <form action="{{ route('sheet-time.set-day-shift') }}" method="POST" id="sheet_time_{{ $sheetTime['sheet_time_id'] }}">
+                                                                    @csrf
+                                                                    <input name="sheet_time_id" value="{{ $sheetTime['sheet_time_id'] }}" hidden />
+                                                                    <input name="anchor" value="sheet_time_{{ $sheetTime['sheet_time_id'] }}" hidden />
+                                                                    <button type="submit" style="font-size: 10px; background-color: #b1b1b1; opacity: 0.5">Перевезти в дневную смену</button>
+                                                                </form>
+                                                            @else
+
+                                                                <form action="{{ route('sheet-time.set-night-shift') }}" method="POST" id="sheet_time_{{ $sheetTime['sheet_time_id'] }}">
+                                                                    @csrf
+                                                                    <input name="sheet_time_id" value="{{ $sheetTime['sheet_time_id'] }}" hidden />
+                                                                    <input name="anchor" value="sheet_time_{{ $sheetTime['sheet_time_id'] }}" hidden />
+                                                                    <button type="submit" style="font-size: 10px; background-color: #f5f5f5; opacity: 0.5">Перевезти в ночную смену</button>
+                                                                </form>
+                                                            @endif
+                                                    </div>
+                                                @endif
+                                            </td>
                                             <td>{{ $sheetTime['min_time'] }}</td>
                                             <td>{{ $sheetTime['max_time'] }}</td>
                                             <td>{{ $sheetTime['duration'] }}</td>

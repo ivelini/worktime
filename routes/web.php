@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SheetTimeController;
 use App\Http\Middleware\UserTypeMiddleware;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -22,11 +23,12 @@ Route::middleware('auth')->group(function () {
         Route::get('payrollheet', [ReportController::class, 'payrollSheet'])
             ->middleware(UserTypeMiddleware::class. ':' .User::$ADMIN)
             ->name('report.payrollsheet');
+    });
 
+    Route::prefix('sheet-time')->group(function () {
+        Route::post('set-night-shift', [SheetTimeController::class, 'setNightShift'])->name('sheet-time.set-night-shift');
+        Route::post('set-day-shift', [SheetTimeController::class, 'setDayShift'])->name('sheet-time.set-day-shift');
     });
 });
-
-
-
 
 require __DIR__.'/auth.php';
