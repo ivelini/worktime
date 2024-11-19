@@ -37,6 +37,20 @@ class Breaktime extends Model
 
     protected function periodEnd(): Attribute
     {
-        return Attribute::get(fn() => $this->period_start->addMinutes($this->duration));
+        return Attribute::get(fn() => $this->period_start->clone()->addMinutes($this->duration));
+    }
+
+    /**
+     * Сеттер для period_start
+     * Метод устанавливает переданную дату
+     */
+    public function period_start(Carbon|string $value): self
+    {
+        if(!($value instanceof Carbon)) {
+            $value = Carbon::parse($value);
+        }
+
+        $this->period_start = $this->period_start->setDate($value->year, $value->month, $value->day);
+        return $this;
     }
 }

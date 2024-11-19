@@ -18,7 +18,8 @@ class RecalculationSheetTimeCommand extends Command
      */
     protected $signature = 'recalculation:sheet-time
                                     {start? : Начало периода}
-                                    {end? : Конец периода}';
+                                    {end? : Конец периода}
+                                    {emp_code? : Конец периода}';
 
     /**
      * The console command description.
@@ -41,7 +42,7 @@ class RecalculationSheetTimeCommand extends Command
 
         //Отмечающиеся сотрудники
         $punchEmployeeIds = collect();
-        TransactionsRepository::getGroupedUserAndDayIntoMaxAndMinPunchTimePoint($start, $end)
+        TransactionsRepository::getGroupedUserAndDayIntoMaxAndMinPunchTimePoint($start, $end, $this->argument('emp_code'))
             ->each(function ($rawPunchDay, $index) use(&$punchEmployeeIds) {
 
                 //Проверяем не помечена ли данная смена как ночная
@@ -67,19 +68,22 @@ class RecalculationSheetTimeCommand extends Command
                 }
 
                 //Получаем смену
-                $shift = $employee->getCurrentShift($rawPunchDay->date);        //Смена
+                $shift = $employee->getCurrentShift($rawPunchDay->date);            //Смена
+                $shift->timeInterval->in_time($rawPunchDay->date);                  //Устанавливаем дату
+                $shift->timeInterval->breaktime->period_start($rawPunchDay->date);  //Устанавливаем дату для перерыва
 
-                $minTime = Carbon::parse($rawPunchDay->min_time)->setSeconds(0);
-                $maxTime = Carbon::parse($rawPunchDay->max_time)->setSeconds(0);
+
+                $minTime = Carbon::parse($rawPunchDay->date . ' ' .$rawPunchDay->min_time)->setSeconds(0);
+                $maxTime = Carbon::parse($rawPunchDay->date . ' ' .$rawPunchDay->max_time)->setSeconds(0);
 
                 $rawPunchDay->schedule_name = $shift->timeInterval->alias;
 
                 // Если время между началом и концом смены меньше часа
                 if($minTime->diff($maxTime)->totalMinutes < 60) {
 
-                    $rawPunchDay->max_time = $rawPunchDay->max_time == $rawPunchDay->min_time ? '' :$rawPunchDay->max_time;
+                    $rawPunchDay->max_time = $maxTime->diff($minTime)->seconds <= 60 ? '' :$rawPunchDay->max_time;
                     $rawPunchDay->work_min_time = $minTime->format('H:i');
-                    $rawPunchDay->work_max_time = $minTime == $maxTime ? '' : $maxTime->format('H:i');
+                    $rawPunchDay->work_max_time = $maxTime->diff($minTime)->seconds <= 60 ? '' : $maxTime->format('H:i');
                     $rawPunchDay->duration = 0;
                 } else {
 
@@ -138,6 +142,11 @@ class RecalculationSheetTimeCommand extends Command
                 );
                 $this->info('index: ' .$index);
             });
+
+        //Не обсчитываем остальных сотрудников, если запустили для одного
+        if($this->argument('emp_code') == null) {
+            return;
+        }
 
         //Получаем пользователей, у которых нет отметок в системе
         Employee::query()

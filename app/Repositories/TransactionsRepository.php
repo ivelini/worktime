@@ -17,7 +17,7 @@ class TransactionsRepository
      * @param Carbon|string $endAt
      * @return Collection
      */
-    public static function getGroupedUserAndDayIntoMaxAndMinPunchTimePoint(Carbon|string $startAt, Carbon|string $endAt): Collection
+    public static function getGroupedUserAndDayIntoMaxAndMinPunchTimePoint(Carbon|string $startAt, Carbon|string $endAt, int $enpCode = null): Collection
     {
         $startAt = self::typeCastCarbon($startAt);
         $endAt = self::typeCastCarbon($endAt);
@@ -42,6 +42,7 @@ class TransactionsRepository
                     ->whereColumn('att_attschedule.employee_id', 'iclock_transaction.emp_id');
             })
             ->whereBetween('punch_time', [$startAt->startOfDay()->format('Ymd H:i'), $endAt->endOfDay()->format('Ymd H:i')])
+            ->when(isset($enpCode), fn(Builder $query) => $query->where('iclock_transaction.emp_code', '=', $enpCode))
             ->groupByRaw("iclock_transaction.emp_id, CAST(iclock_transaction.punch_time as date)")
             ->orderBy('iclock_transaction.emp_id')
             ->get();

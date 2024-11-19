@@ -73,4 +73,18 @@ class TimeInterval extends Model
     {
         return Attribute::get(fn() => $this->breaktimes->first());
     }
+
+    /**
+     * Сеттер для in_time
+     * Метод устанавливает переданную дату
+     */
+    public function in_time(Carbon|string $value): self
+    {
+        if(!($value instanceof Carbon)) {
+            $value = Carbon::parse($value);
+        }
+
+        $this->in_time = $this->in_time->setDate($value->year, $value->month, $value->day);
+        return $this;
+    }
 }

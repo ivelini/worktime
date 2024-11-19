@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
  * Сотрудник системы учета
  *
  * @property int $status
+ * @property int $emp_code
  * @property string $first_name
  * @property string $last_name
  * @property Position $position
