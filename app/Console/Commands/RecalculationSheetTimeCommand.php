@@ -144,7 +144,7 @@ class RecalculationSheetTimeCommand extends Command
             });
 
         //Не обсчитываем остальных сотрудников, если запустили для одного
-        if($this->argument('emp_code') == null) {
+        if($this->argument('emp_code') != null) {
             return;
         }
 
