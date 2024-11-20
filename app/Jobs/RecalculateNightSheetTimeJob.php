@@ -67,7 +67,7 @@ class RecalculateNightSheetTimeJob implements ShouldQueue
 
             //Если время прихода лежит в рамках между смещением слева и началом работы
             ($minTime >= $nightTimeInterval->min_early_in && $minTime <= $nightTimeInterval->in_time) => $nightTimeInterval->in_time,
-            default => false,
+            default => null,
         };
 
         //Вычисляем время ухода
@@ -79,7 +79,7 @@ class RecalculateNightSheetTimeJob implements ShouldQueue
 
             //Если время ухода больше времени конца смены, но меньше смещения справа
             $maxTime >= $nightTimeInterval->end_time && $maxTime <= $nightTimeInterval->min_late_out => $nightTimeInterval->end_time,
-            default => false,
+            default => null,
         };
 
         //Расчет рабочего времени
@@ -89,10 +89,10 @@ class RecalculateNightSheetTimeJob implements ShouldQueue
         $this->sheetTime->update([
             'is_night' => true,
             'min_time' => $minTime->format('H:s'),
-            'max_time' => $maxTime->format('H:s'),
+            'max_time' => $workDuration < 16 ? $maxTime->format('H:s') : '',
             'work_min_time' => $workMinTime->format('H:s'),
             'work_max_time' => $workMaxTime->format('H:s'),
-            'duration' => $workDuration,
+            'duration' => $workDuration < 16 ? $workDuration : 0,
         ]);
     }
 }

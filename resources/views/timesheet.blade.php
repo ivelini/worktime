@@ -144,7 +144,12 @@
 
                                     @foreach($sheetTimeRowsEmployee as $sheetTime)
 
-                                        <tr>
+                                        @if(isset($sheetTime['sheet_time_id']))
+                                            <tr id="sheet_time_{{ $sheetTime['sheet_time_id'] + 2 }}">
+                                        @else
+                                            <tr>
+                                        @endif
+
                                             <td>{{ $sheetTime['date'] }}</td>
                                             <td>{{ $sheetTime['dey_of_the_week'] }}</td>
                                             <td style="overflow: hidden">
@@ -162,7 +167,7 @@
 
                                                             @if($sheetTime['is_night'])
 
-                                                                <form action="{{ route('sheet-time.set-day-shift') }}" method="POST" id="sheet_time_{{ $sheetTime['sheet_time_id'] }}">
+                                                                <form action="{{ route('sheet-time.set-day-shift') }}" method="POST">
                                                                     @csrf
                                                                     <input name="sheet_time_id" value="{{ $sheetTime['sheet_time_id'] }}" hidden />
                                                                     <input name="anchor" value="sheet_time_{{ $sheetTime['sheet_time_id'] }}" hidden />
@@ -170,7 +175,7 @@
                                                                 </form>
                                                             @else
 
-                                                                <form action="{{ route('sheet-time.set-night-shift') }}" method="POST" id="sheet_time_{{ $sheetTime['sheet_time_id'] }}">
+                                                                <form action="{{ route('sheet-time.set-night-shift') }}" method="POST">
                                                                     @csrf
                                                                     <input name="sheet_time_id" value="{{ $sheetTime['sheet_time_id'] }}" hidden />
                                                                     <input name="anchor" value="sheet_time_{{ $sheetTime['sheet_time_id'] }}" hidden />

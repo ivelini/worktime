@@ -67,7 +67,7 @@ class RecalculateDalySheetTimeJob implements ShouldQueue
 
             //Если время прихода лежит в рамках между смещением слева и началом работы
             ($minTime >= $timeInterval->min_early_in && $minTime <= $timeInterval->in_time) => $timeInterval->in_time,
-            default => false,
+            default => null,
         };
 
         //Вычисляем время ухода
@@ -79,7 +79,7 @@ class RecalculateDalySheetTimeJob implements ShouldQueue
 
             //Если время ухода больше времени конца смены, но меньше смещения справа
             $maxTime >= $timeInterval->end_time && $maxTime <= $timeInterval->min_late_out => $timeInterval->end_time,
-            default => false,
+            default => null,
         };
 
         //Вычитаем перерыв
@@ -96,10 +96,10 @@ class RecalculateDalySheetTimeJob implements ShouldQueue
         $this->sheetTime->update([
             'is_night' => false,
             'min_time' => $minTime->format('H:s'),
-            'max_time' => $maxTime->format('H:s'),
+            'max_time' => $workMaxTime->diff($workMinTime, true)->totalMinutes > 60 ? $maxTime->format('H:s') : '',
             'work_min_time' => $workMinTime->format('H:s'),
             'work_max_time' => $workMaxTime->format('H:s'),
-            'duration' => $workDuration,
+            'duration' => $workMaxTime->diff($workMinTime, true)->totalMinutes > 60 ? $workDuration : 0,
         ]);
     }
 }

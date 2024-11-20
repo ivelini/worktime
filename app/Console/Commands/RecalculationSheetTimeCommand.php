@@ -95,7 +95,7 @@ class RecalculationSheetTimeCommand extends Command
 
                         //Если время прихода лежит в рамках между смещением слева и началом работы
                         ($minTime >= $shift->timeInterval->min_early_in && $minTime <= $shift->timeInterval->in_time) => $shift->timeInterval->in_time,
-                        default => false,
+                        default => null,
                     };
 
                     $maxTime = match(true) {
@@ -106,7 +106,7 @@ class RecalculationSheetTimeCommand extends Command
 
                         //Если время ухода больше времени конца смены, но меньше смещения справа
                         $maxTime >= $shift->timeInterval->end_time && $maxTime <= $shift->timeInterval->min_late_out => $shift->timeInterval->end_time,
-                        default => false,
+                        default => null,
                     };
 
                     //Вычитаем перерыв, если есть
