@@ -72,10 +72,12 @@
                 <i class="bi bi-grid"></i>
                 <span>Учет рабочего времени</span>
             </a>
-            <a class="nav-link collapsed" href="{{ route('report.payrollsheet') }}">
-                <i class="bi bi-grid"></i>
-                <span>Учет оплаты труда</span>
-            </a>
+            @if(\Illuminate\Support\Facades\Auth::user()?->type == \App\Models\User::$ADMIN)
+                <a class="nav-link collapsed" href="{{ route('report.payrollsheet') }}">
+                    <i class="bi bi-grid"></i>
+                    <span>Учет оплаты труда</span>
+                </a>
+            @endif
         </li><!-- End Dashboard Nav -->
     </ul>
 
@@ -100,8 +102,11 @@
                                     <input type="date" name="end_at" class="form-control" value="{{ $endAt->format('Y-m-d') }}">
                                 </div>
 
-                                <div class="col-sm-3">
+                                <div class="col-sm-1">
                                     <button type="submit" class="btn btn-primary">Показать</button>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="{{ route('report.export.timesheet', request()->all()) }}" class="btn btn-info">Выгрузить в Excel</a>
                                 </div>
                                 <div class="col-sm-3">
                                     <a href="{{ route('report.timesheet', ['start_at' => now()->subMonth()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->subMonth()->endOfMonth()->format('Y-m-d')]) }}">Прошлый месяц&nbsp;&nbsp;&nbsp;</a>

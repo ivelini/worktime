@@ -23,6 +23,9 @@ Route::middleware('auth')->group(function () {
         Route::get('payrollheet', [ReportController::class, 'payrollSheet'])
             ->middleware(UserTypeMiddleware::class. ':' .User::$ADMIN)
             ->name('report.payrollsheet');
+
+        Route::get('export/timesheet', [ReportController::class, 'exportSheetTime'])->name('report.export.timesheet');
+        Route::get('export/payroll', [ReportController::class, 'exportPayroll'])->name('report.export.payroll');
     });
 
     Route::prefix('sheet-time')->group(function () {

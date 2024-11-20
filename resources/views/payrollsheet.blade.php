@@ -101,8 +101,11 @@
                                     <input type="date" name="end_at" class="form-control" value="{{ $endAt->format('Y-m-d') }}">
                                 </div>
 
-                                <div class="col-sm-3">
+                                <div class="col-sm-1">
                                     <button type="submit" class="btn btn-primary">Показать</button>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="{{ route('report.export.payroll', request()->all()) }}" class="btn btn-info">Выгрузить в Excel</a>
                                 </div>
                                 <div class="col-sm-3">
                                     <a href="{{ route('report.payrollsheet', ['start_at' => now()->subMonth()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->subMonth()->endOfMonth()->format('Y-m-d')]) }}">Прошлый месяц&nbsp;&nbsp;&nbsp;</a>
