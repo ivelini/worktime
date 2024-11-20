@@ -176,7 +176,7 @@
                                                                     @csrf
                                                                     <input name="sheet_time_id" value="{{ $sheetTime['sheet_time_id'] }}" hidden />
                                                                     <input name="anchor" value="sheet_time_{{ $sheetTime['sheet_time_id'] }}" hidden />
-                                                                    <button type="submit" style="font-size: 10px; background-color: #b1b1b1; opacity: 0.5">Перевезти в дневную смену</button>
+                                                                    <button type="submit" style="font-size: 10px; background-color: #b1b1b1; opacity: 0.5">Перевод в дневную смену</button>
                                                                 </form>
                                                             @else
 
@@ -184,7 +184,7 @@
                                                                     @csrf
                                                                     <input name="sheet_time_id" value="{{ $sheetTime['sheet_time_id'] }}" hidden />
                                                                     <input name="anchor" value="sheet_time_{{ $sheetTime['sheet_time_id'] }}" hidden />
-                                                                    <button type="submit" style="font-size: 10px; background-color: #f5f5f5; opacity: 0.5">Перевезти в ночную смену</button>
+                                                                    <button type="submit" style="font-size: 10px; background-color: #f5f5f5; opacity: 0.5">Перевод в ночную смену</button>
                                                                 </form>
                                                             @endif
                                                     </div>
