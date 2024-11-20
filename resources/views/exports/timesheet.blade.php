@@ -3,7 +3,7 @@
     <tr>
         <th style="width: 100px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Дата</th>
         <th style="width: 120px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">День недели</th>
-        <th style="width: 180px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Расписание</th>
+        <th style="width: 200px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Расписание</th>
         <th style="width: 70px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Приход</th>
         <th style="width: 70px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Уход</th>
         <th style="width: 70px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Всего</th>
