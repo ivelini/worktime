@@ -90,7 +90,8 @@ class SheetTimeRepository
                 ")
             ->whereBetween('date', [$startAt, $endAt])
             ->groupBy('emp_id')
-            ->orderBy('emp_id')
+            ->orderBy('position')
+            ->orderBy('fio')
             ->get();
     }
 }
