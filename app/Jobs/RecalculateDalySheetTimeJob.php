@@ -95,10 +95,10 @@ class RecalculateDalySheetTimeJob implements ShouldQueue
         //Записываем смену в $sheetTime
         $this->sheetTime->update([
             'is_night' => false,
-            'min_time' => $minTime->format('H:s'),
-            'max_time' => $workMaxTime->diff($workMinTime, true)->totalMinutes > 60 ? $maxTime->format('H:s') : '',
-            'work_min_time' => $workMinTime->format('H:s'),
-            'work_max_time' => $workMaxTime->format('H:s'),
+            'min_time' => $minTime->format('H:i'),
+            'max_time' => $workMaxTime->diff($workMinTime, true)->totalMinutes > 60 ? $maxTime->format('H:i') : '',
+            'work_min_time' => $workMinTime->format('H:i'),
+            'work_max_time' => $workMaxTime->format('H:i'),
             'duration' => $workMaxTime->diff($workMinTime, true)->totalMinutes > 60 ? $workDuration : 0,
         ]);
     }
