@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Отметка приход / уход в системе
+ * Аванс
  *
  * @property int $id
  * @property int $emp_id

@@ -62,8 +62,8 @@ class RecalculateDalySheetTimeJob implements ShouldQueue
         $workMinTime = match (true) {
             //Если время прихода меньше смещения слева или Если время прихода больше времени началом работы
             $minTime < $timeInterval->min_early_in || $minTime > $timeInterval->in_time => $minTime->minute <= 10
-                ? (clone $minTime)->setMinutes(0)
-                : (clone $minTime)->addHour()->setMinutes(0),
+                ? (clone $minTime)->setMinutes(0)->setSeconds(0)
+                : (clone $minTime)->addHour()->setMinutes(0)->setSeconds(0),
 
             //Если время прихода лежит в рамках между смещением слева и началом работы
             ($minTime >= $timeInterval->min_early_in && $minTime <= $timeInterval->in_time) => $timeInterval->in_time,
@@ -74,8 +74,8 @@ class RecalculateDalySheetTimeJob implements ShouldQueue
         $workMaxTime = match(true) {
             //Если время ухода меньше времени конца смены или Если время ухода больше смещения справа
             ($maxTime < $timeInterval->end_time || $maxTime > $timeInterval->min_late_out) => $maxTime->minute >= 50
-                ? (clone $maxTime)->addHour()->setMinutes(0)
-                : (clone $maxTime)->setMinutes(0),
+                ? (clone $maxTime)->addHour()->setMinutes(0)->setSeconds(0)
+                : (clone $maxTime)->setMinutes(0)->setSeconds(0),
 
             //Если время ухода больше времени конца смены, но меньше смещения справа
             $maxTime >= $timeInterval->end_time && $maxTime <= $timeInterval->min_late_out => $timeInterval->end_time,
