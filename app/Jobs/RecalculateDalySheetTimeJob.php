@@ -28,7 +28,10 @@ class RecalculateDalySheetTimeJob implements ShouldQueue
     {
         $timeInterval = $this->sheetTime->employee->getCurrentShift($this->sheetTime->date)->timeInterval;
         $timeInterval->in_time = $timeInterval->in_time->setDate($this->sheetTime->date->year, $this->sheetTime->date->month, $this->sheetTime->date->day);
-        $timeInterval->breaktime->period_start = $timeInterval->breaktime->period_start->setDate($this->sheetTime->date->year, $this->sheetTime->date->month, $this->sheetTime->date->day);
+
+        if(!empty($timeInterval->breaktime)) {
+            $timeInterval->breaktime->period_start = $timeInterval->breaktime->period_start->setDate($this->sheetTime->date->year, $this->sheetTime->date->month, $this->sheetTime->date->day);
+        }
 
         //Крайняя левая отметка за следующий день от $sheetTime
         $minTime = Transaction::query()
