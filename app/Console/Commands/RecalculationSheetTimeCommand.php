@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\HasWorkTimeTrait;
 use App\Models\Employee;
 use App\Models\SheetTime;
 use App\Repositories\TransactionsRepository;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class RecalculationSheetTimeCommand extends Command
 {
+    use HasWorkTimeTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -70,7 +73,7 @@ class RecalculationSheetTimeCommand extends Command
                 //Получаем смену
                 $shift = $employee->getCurrentShift($rawPunchDay->date);            //Смена
                 $shift->timeInterval->in_time($rawPunchDay->date);                  //Устанавливаем дату
-                $shift->timeInterval->breaktime->period_start($rawPunchDay->date);  //Устанавливаем дату для перерыва
+                $shift->timeInterval->breaktime?->period_start($rawPunchDay->date);  //Устанавливаем дату для перерыва
 
 
                 $minTime = Carbon::parse($rawPunchDay->date . ' ' .$rawPunchDay->min_time)->setSeconds(0);
@@ -87,40 +90,9 @@ class RecalculationSheetTimeCommand extends Command
                     $rawPunchDay->duration = 0;
                 } else {
 
-                    $minTime = match(true) {
-                        //Если время прихода меньше смещения слева или Если время прихода больше времени началом работы
-                        ($minTime < $shift->timeInterval->min_early_in || $minTime > $shift->timeInterval->in_time) => $minTime->minute <= 10
-                            ? $minTime->setMinutes(0)
-                            : $minTime->addHour()->setMinutes(0),
-
-                        //Если время прихода лежит в рамках между смещением слева и началом работы
-                        ($minTime >= $shift->timeInterval->min_early_in && $minTime <= $shift->timeInterval->in_time) => $shift->timeInterval->in_time,
-                        default => null,
-                    };
-
-                    $maxTime = match(true) {
-                        //Если время ухода меньше времени конца смены или Если время ухода больше смещения справа
-                        ($maxTime < $shift->timeInterval->end_time || $maxTime > $shift->timeInterval->min_late_out) => $maxTime->minute >= 50
-                            ? $maxTime->addHour()->setMinutes(0)
-                            : $maxTime->setMinutes(0),
-
-                        //Если время ухода больше времени конца смены, но меньше смещения справа
-                        $maxTime >= $shift->timeInterval->end_time && $maxTime <= $shift->timeInterval->min_late_out => $shift->timeInterval->end_time,
-                        default => null,
-                    };
-
-                    //Вычитаем перерыв, если есть
-                    $workDuration = (!empty($shift->timeInterval->breaktime) && $maxTime > $shift->timeInterval->breaktime->period_end)
-                        ? (clone $maxTime)
-                            ->subMinutes($shift
-                                ->timeInterval
-                                ->breaktime
-                                ->duration)
-                            ->diff($minTime)
-                            ->hours
-                        : $maxTime
-                            ->diff($minTime)
-                            ->hours;
+                    $minTime = $this->minTimeWork($shift->timeInterval, $minTime);
+                    $maxTime = $this->maxTimeWork($shift->timeInterval, $maxTime);
+                    $workDuration = $this->durationWork($minTime, $maxTime, $shift->timeInterval->breaktime);
 
                     $rawPunchDay->work_min_time = $minTime->format('H:i');
                     $rawPunchDay->work_max_time = $maxTime->format('H:i');
@@ -140,6 +112,7 @@ class RecalculationSheetTimeCommand extends Command
                     ],
                     (array) $rawPunchDay
                 );
+
                 $this->info('index: ' .$index);
             });
 
