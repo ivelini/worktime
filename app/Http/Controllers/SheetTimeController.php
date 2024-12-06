@@ -25,13 +25,16 @@ class SheetTimeController extends Controller
      */
     public function setNightShift(Request $request)
     {
-        $shitTime = SheetTime::findOrFail($request->input('sheet_time_id'));
+        try {
+            $shitTime = SheetTime::findOrFail($request->input('sheet_time_id'));
+            RecalculateNightSheetTimeJob::dispatchSync($shitTime->refresh());
+        } catch (\Throwable $exception) {
 
-        RecalculateNightSheetTimeJob::dispatchSync($shitTime->refresh());
-
-        return redirect(empty($request->input('anchor'))
-            ? url()->previous()
-            : url()->previous(). '#' .$request->input('anchor'));
+        } finally {
+            return redirect(empty($request->input('anchor'))
+                ? url()->previous()
+                : url()->previous(). '#' .$request->input('anchor'));
+        }
     }
 
     /*
@@ -65,6 +68,7 @@ class SheetTimeController extends Controller
 
         $sheetTime = $this->prepareSheetTime($data, $sheetTime);
 
+        //Убираем корректировку, если езмененное время равно оригиналу
         if(
             Carbon::parse($sheetTime->min_time)->format('H:i') == Carbon::parse($sheetTime->corrected->original->start)->format('H:i') &&
             Carbon::parse($sheetTime->max_time)->format('H:i') == Carbon::parse($sheetTime->corrected->original->end)->format('H:i')) {
@@ -97,6 +101,8 @@ class SheetTimeController extends Controller
         $sheetTime->duration = null;
 
         $sheetTime->save();
+
+        return response()->json(['status' => 'success'], 200);
     }
 
     private function prepareSheetTime(array $data, ?SheetTime $sheetTime = null): SheetTime
