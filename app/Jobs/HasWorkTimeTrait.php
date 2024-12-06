@@ -44,7 +44,7 @@ trait HasWorkTimeTrait
     {
         return match(true) {
             //Если время ухода меньше времени конца смены или Если время ухода больше смещения справа
-            ($punchTime < $timeInterval->end_time || $punchTime >= $timeInterval->min_late_out) => $punchTime->minute >= 50
+            ($punchTime < $timeInterval->end_time || $punchTime >= $timeInterval->min_late_out) => $punchTime->minute >= 45
                 ? $punchTime->clone()->addHour()->setMinutes(0)->setSeconds(0)
                 : $punchTime->clone()->setMinutes(0)->setSeconds(0),
 

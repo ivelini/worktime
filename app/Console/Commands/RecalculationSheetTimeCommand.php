@@ -8,6 +8,7 @@ use App\Models\SheetTime;
 use App\Repositories\TransactionsRepository;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class RecalculationSheetTimeCommand extends Command
@@ -48,15 +49,18 @@ class RecalculationSheetTimeCommand extends Command
         TransactionsRepository::getGroupedUserAndDayIntoMaxAndMinPunchTimePoint($start, $end, $this->argument('emp_code'))
             ->each(function ($rawPunchDay, $index) use(&$punchEmployeeIds) {
 
-                //Проверяем не помечена ли данная смена как ночная
-                $isNight = SheetTime::query()
+                //Проверяем не помечена ли данная смена как ночная или отредактированная вручную
+                $isNotModify = SheetTime::query()
                     ->where('emp_id', $rawPunchDay->emp_id)
                     ->where('date', $rawPunchDay->date)
-                    ->where('is_night', true)
+                    ->where(function (Builder $query) {
+                        $query->orWhere('is_night', true);
+                        $query->orWhereNotNull('corrected');
+                    })
                     ->exists();
 
-                // Пропускаем ночные смены
-                if($isNight) {
+                // Пропускаем такие смены
+                if($isNotModify) {
                     return;
                 }
 

@@ -76,6 +76,7 @@ class RecalculateDalySheetTimeJob implements ShouldQueue
             'work_min_time' => $workMinTime->format('H:i'),
             'work_max_time' => $workMaxTime->format('H:i'),
             'duration' => $workMaxTime->diff($workMinTime, true)->totalMinutes > 60 ? $workDuration : 0,
+            'corrected' => null,
         ]);
     }
 }

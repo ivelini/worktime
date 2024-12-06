@@ -44,6 +44,7 @@ class RecalculationNightSheetTimeCommand extends Command
         SheetTime::query()
             ->whereBetween('date', [$start->format('Y-m-d H:i'), $end->format('Y-m-d H:i')])
             ->where('is_night', true)
+            ->whereNull('corrected')
             ->get()
             ->each(function (SheetTime $sheetTime) {
 

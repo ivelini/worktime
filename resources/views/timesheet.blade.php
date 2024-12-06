@@ -145,8 +145,7 @@
                                         </td>
                                     </tr>
 
-
-
+{{--                                    @dd($sheetTimeRowsEmployee);--}}
                                     @foreach($sheetTimeRowsEmployee as $sheetTime)
 
                                         @if(isset($sheetTime['sheet_time_id']))
@@ -192,10 +191,45 @@
                                             </td>
                                             <td>{{ $sheetTime['min_time'] }}</td>
                                             <td>{{ $sheetTime['max_time'] }}</td>
-                                            <td>{{ $sheetTime['duration'] }}</td>
+                                            <td>
+                                                <div style="overflow: hidden">
+                                                    <div style="float: left">
+                                                        <div style="float: left; width: 30px">
+                                                            {{ $sheetTime['duration'] }}
+                                                        </div>
+                                                        @if($sheetTime['corrected'] instanceof \App\Models\SheetTimeDto\CorrectedDto && $sheetTime['corrected']->is_isset)
+                                                            <div style="float: left">
+                                                                <i class="bi bi-lightbulb" style="color: orange"
+                                                                   data-bs-toggle="tooltip"
+                                                                   data-bs-placement="top"
+                                                                   data-bs-original-title="{{ $sheetTime['corrected']->userName }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                   Было: {{ $sheetTime['corrected']->original->start }} - {{ $sheetTime['corrected']->original->end }} &nbsp;&nbsp;&nbsp;&nbsp;
+                                                                   Стало: {{ $sheetTime['corrected']->modify->start }} - {{ $sheetTime['corrected']->modify->end }}"></i>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+
+                                                    @if(! $loop->last)
+                                                        <div style="float: right" class="icon" onclick="getModalCorrectSheetTime(event.target.dataset)">
+                                                            <i style="cursor: pointer; color: #d5d5d5"
+                                                               class="bi bi-pencil"
+                                                               data-emp-id = "{{ $sheetTime['emp_id'] }}"
+                                                               data-emp-name = "{{ $sheetTime['emp_name'] }}"
+                                                               data-date = "{{ $sheetTime['date'] }}"
+                                                               data-date-for-form = "{{ $sheetTime['date_for_form'] }}"
+                                                               data-day-of-the-week = "{{ $sheetTime['dey_of_the_week'] }}"
+                                                               data-sheet-time-id = "{{ $sheetTime['sheet_time_id'] }}"
+                                                               data-is-night = "{{ $sheetTime['is_night'] ? 'true' : 'false' }}"
+                                                               data-min_time = "{{ $sheetTime['min_time'] }}"
+                                                               data-max_time = "{{ $sheetTime['max_time'] }}"
+                                                               data-user-id = "{{ $sheetTime['user_id'] }}"
+                                                            ></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </td>
                                         </tr>
                                     @endforeach
-
                                 @endforeach
                             </tbody>
                         </table>
@@ -204,8 +238,56 @@
             </div>
         </div>
     </section>
-
 </main><!-- End #main -->
+
+<div class="modal fade" id="basicModal" tabindex="-1" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #f5f5f5;">
+            <form id="sheet-time-form" onsubmit="handleUpdateOrCreateSheetTime(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title">Корректировка смены</h5>
+                    <button type="button" class="btn-close" aria-label="Close" onclick="closeModal()"></button>
+                </div>
+                <div class="modal-body">
+                        <input name="user_id" type="text" class="form-control" hidden />
+                        <input name="emp_id" type="text" class="form-control" hidden />
+                        <input name="sheet_time_id" type="text" class="form-control" hidden />
+                        <input name="date" type="date" class="form-control" hidden />
+                        <div class="row mb-3">
+                            <label for="inputText" class="col-sm-3 col-form-label">Сотрудник</label>
+                            <div class="col-sm-9">
+                                <input name="emp_name" type="text" class="form-control" readonly />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="inputText" class="col-sm-3 col-form-label">Дата</label>
+                            <div class="col-sm-9">
+                                <input name="date_string" type="text" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label">Приход</label>
+                            <div class="col-sm-9">
+                                <input name="min_time" type="time" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label">Уход</label>
+                            <div class="col-sm-9">
+                                <input name="max_time" type="time" class="form-control" required/>
+                            </div>
+                        </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" style="margin-right: 100px" class="btn btn-danger" onclick="clearSheetTime()">Убрать смену</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Отменить</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 <!-- Vendor JS Files -->
@@ -221,5 +303,73 @@
 <!-- Template Main JS File -->
 <script src="{{asset('assets/js/main.js')}}"></script>
 </body>
+
+<script>
+
+    const modal = document.getElementById('basicModal')
+    const dataForm = document.getElementById('sheet-time-form')
+
+    /**
+     *
+     * @param payload
+     */
+    const getModalCorrectSheetTime = (payload) => {
+
+        dataForm.user_id.value = payload.userId
+        dataForm.emp_id.value = payload.empId
+        dataForm.sheet_time_id.value = payload.sheetTimeId
+        dataForm.emp_name.value = payload.empName
+        dataForm.date_string.value = payload.date + ' (' + payload.dayOfTheWeek + ')'
+        dataForm.date.value = payload.dateForForm
+        dataForm.min_time.value = payload.min_time
+        dataForm.max_time.value = payload.max_time
+
+        showModal()
+    }
+
+    const showModal = () => {
+        modal.style.display = 'block'
+        modal.classList.add('show')
+    }
+
+    const closeModal = () => {
+        modal.style.display = 'none'
+        modal.classList.remove('show')
+    }
+
+    const handleUpdateOrCreateSheetTime = async (event) => {
+
+        event.preventDefault()
+
+        let url = (new URL(document.documentURI)).origin + '/api/sheet-time'
+
+        if(dataForm.sheet_time_id.value !== '') {
+            url = url + '/' + dataForm.sheet_time_id.value
+        }
+
+        let response = await fetch(url, {
+            method: 'POST',
+            body: new FormData(dataForm)
+        });
+
+        if(response.status === 200) {
+            closeModal()
+            window.location.reload()
+        }
+    }
+
+    const clearSheetTime = async () => {
+        let url = (new URL(document.documentURI)).origin
+            + '/api/sheet-time' + '/' + dataForm.sheet_time_id.value
+            + '?user_id=' + dataForm.user_id.value
+
+        let response = await fetch(url, {method: 'DELETE'});
+
+        if(response.status === 200) {
+            closeModal()
+            window.location.reload()
+        }
+    }
+</script>
 
 </html>

@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\SheetTimeDto\CorrectedDto;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Schedule;
 
 /**
  * Проставленная смена за день
@@ -29,6 +27,7 @@ use Illuminate\Support\Facades\Schedule;
  * @property int $duration
  * @property Carbon $date
  * @property Employee $employee
+ * @property ?CorrectedDto $corrected
  */
 class SheetTime extends Model
 {
@@ -51,12 +50,14 @@ class SheetTime extends Model
         'salary_amount',
         'per_pay_hour',
         'is_night',
+        'corrected',
     ];
 
     protected function casts()
     {
         return [
-            'date' => 'datetime'
+            'date' => 'datetime',
+            'corrected' => CorrectedDto::class,
         ];
     }
 

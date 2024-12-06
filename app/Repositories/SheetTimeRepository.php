@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SheetTimeRepository
@@ -19,39 +20,48 @@ class SheetTimeRepository
                     SUM(sheet_time.duration) OVER (PARTITION BY sheet_time.emp_id) as month_duration
                 ")
             ->whereBetween('date', [$startAt, $endAt])
-            ->whereNotNull(['min_time', 'work_min_time'])
+            ->where(function (\Illuminate\Database\Eloquent\Builder $query) {
+                $query->orWhereNotNull('min_time');
+                $query->orWhereNotNull('max_time');
+                $query->orWhereNotNull('corrected');
+            })
             ->orderBy('emp_code')
             ->orderBy('date')
             ->get()
             ->groupBy(fn($employee) => $employee->emp_code. ', ' .$employee->surname. ' ' .$employee->name. ', ' .$employee->position)
             ->map(function ($groupedMonthEmployee) use ($startAt, $endAt) {
 
+//                dd($groupedMonthEmployee);
                 /** @var Collection $groupedMonthEmployee */
                 $data = collect();
                 $i = clone $startAt;
                 for($i->dayOfCentury; $i->dayOfCentury <= $endAt->dayOfCentury; $i->addDay()) {
-                    $sheetTimeCurrenDay = $groupedMonthEmployee->first(fn(SheetTime $sheetTime) => $i == $sheetTime->date);
-
+                    $sheetTimeCurrentDay = $groupedMonthEmployee->first(fn(SheetTime $sheetTime) => $i == $sheetTime->date);
 
                     $prepareSheetTimeCurrentDay = [
+                        'user_id' => Auth::id(),
+                        'emp_id' => $groupedMonthEmployee[0]->emp_id,
+                        'emp_name' => $groupedMonthEmployee[0]->surname. ' ' .$groupedMonthEmployee[0]->name. ', ' .$groupedMonthEmployee[0]->position,
                         'date' => $i->format('d-m-Y'),
+                        'date_for_form' => $i->format('Y-m-d'),
                         'dey_of_the_week' => $i->localeDayOfWeek,
                         'schedule_name' => $groupedMonthEmployee[0]->schedule_name,
                     ];
 
-
-                    if(!empty($sheetTimeCurrenDay)) {
-                        $prepareSheetTimeCurrentDay['sheet_time_id'] = $sheetTimeCurrenDay->id;
-                        $prepareSheetTimeCurrentDay['min_time'] = $sheetTimeCurrenDay->prepare_min_time;
-                        $prepareSheetTimeCurrentDay['max_time'] = $sheetTimeCurrenDay->prepare_max_time;
-                        $prepareSheetTimeCurrentDay['duration'] = $sheetTimeCurrenDay->duration;
-                        $prepareSheetTimeCurrentDay['is_night'] = $sheetTimeCurrenDay->is_night;
+                    if(!empty($sheetTimeCurrentDay)) {
+                        $prepareSheetTimeCurrentDay['sheet_time_id'] = $sheetTimeCurrentDay->id;
+                        $prepareSheetTimeCurrentDay['min_time'] = $sheetTimeCurrentDay->prepare_min_time;
+                        $prepareSheetTimeCurrentDay['max_time'] = $sheetTimeCurrentDay->prepare_max_time;
+                        $prepareSheetTimeCurrentDay['duration'] = $sheetTimeCurrentDay->duration;
+                        $prepareSheetTimeCurrentDay['is_night'] = $sheetTimeCurrentDay->is_night;
+                        $prepareSheetTimeCurrentDay['corrected'] = $sheetTimeCurrentDay->corrected;
                     } else {
                         $prepareSheetTimeCurrentDay['sheet_time_id'] = null;
                         $prepareSheetTimeCurrentDay['min_time'] = '';
                         $prepareSheetTimeCurrentDay['max_time'] = '';
                         $prepareSheetTimeCurrentDay['duration'] = '';
                         $prepareSheetTimeCurrentDay['is_night'] = false;
+                        $prepareSheetTimeCurrentDay['corrected'] = '';
                     }
 
                     $data->push($prepareSheetTimeCurrentDay);
@@ -61,10 +71,12 @@ class SheetTimeRepository
                         'date' => 'Статистика',
                         'dey_of_the_week' => '',
                         'schedule_name' => '',
+                        'sheet_time_id' => null,
                         'min_time' => '',
                         'max_time' => '',
                         'is_night' => '',
                         'duration' => $groupedMonthEmployee[0]->month_duration,
+                        'corrected' => '',
                     ]
                 );
                 return $data;
