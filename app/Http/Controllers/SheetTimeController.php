@@ -91,7 +91,8 @@ class SheetTimeController extends Controller
         $sheetTime->corrected = new CorrectedDto(
             User::findOrFail($request->query('user_id'))->name,
             new IntervalDto('', ''),
-            $original
+            $original,
+            $request->query('comment')
         );
 
         $sheetTime->work_min_time = null;
@@ -121,7 +122,8 @@ class SheetTimeController extends Controller
             $sheetTime->corrected = new CorrectedDto(
                 User::findOrFail($data['user_id'])->name,
                 new IntervalDto($data['min_time'], $data['max_time']),
-                new IntervalDto('', '')
+                new IntervalDto('', ''),
+                $data['comment']
             );
 
             $sheetTime->work_min_time = $data['min_time'];
@@ -145,6 +147,7 @@ class SheetTimeController extends Controller
                 empty($sheetTime->corrected->original->start) && empty($sheetTime->corrected->original->end) && empty($sheetTime->corrected->userName)
                     ? new IntervalDto($sheetTime->min_time, $sheetTime->max_time)
                     : $sheetTime->corrected->original,
+                $data['comment']
             );
         }
 

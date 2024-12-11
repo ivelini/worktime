@@ -23,13 +23,14 @@ class CorrectedSheetTimeCast implements CastsAttributes
             $data = json_decode($value, true);
 
             if(empty($data)) {
-                return new CorrectedDto('', new IntervalDto('', ''), new IntervalDto( '', ''));
+                return new CorrectedDto('', new IntervalDto('', ''), new IntervalDto( '', ''), null);
             } else {
 
                 return new CorrectedDto(
                     $data['userName'] ?? '',
                     new IntervalDto($data['modify']['start'] ?? '', $data['modify']['end']) ?? '',
-                    new IntervalDto($data['original']['start'] ?? '', $data['original']['end'] ?? '')
+                    new IntervalDto($data['original']['start'] ?? '', $data['original']['end'] ?? ''),
+                    $data['comment'] ?? null
                 );
             }
         }

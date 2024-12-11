@@ -106,7 +106,9 @@
                                     <button type="submit" class="btn btn-primary">Показать</button>
                                 </div>
                                 <div class="col-sm-2">
-                                    <a href="{{ route('report.export.timesheet', request()->all()) }}" class="btn btn-info">Выгрузить в Excel</a>
+                                    @if(\Illuminate\Support\Facades\Auth::user()->type == 'admin')
+                                        <a href="{{ route('report.export.timesheet', request()->all()) }}" class="btn btn-info">Выгрузить в Excel</a>
+                                    @endif
                                 </div>
                                 <div class="col-sm-3">
                                     <a href="{{ route('report.timesheet', ['start_at' => now()->subMonth()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->subMonth()->endOfMonth()->format('Y-m-d')]) }}">Прошлый месяц&nbsp;&nbsp;&nbsp;</a>
@@ -202,9 +204,10 @@
                                                                 <i class="bi bi-lightbulb" style="color: orange"
                                                                    data-bs-toggle="tooltip"
                                                                    data-bs-placement="top"
-                                                                   data-bs-original-title="{{ $sheetTime['corrected']->userName }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                                   Было: {{ $sheetTime['corrected']->original->start }} - {{ $sheetTime['corrected']->original->end }} &nbsp;&nbsp;&nbsp;&nbsp;
-                                                                   Стало: {{ $sheetTime['corrected']->modify->start }} - {{ $sheetTime['corrected']->modify->end }}"></i>
+                                                                   data-bs-original-title="{{ $sheetTime['corrected']->userName }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                   Было: {{ $sheetTime['corrected']->original->start }} - {{ $sheetTime['corrected']->original->end }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                   Стало: {{ $sheetTime['corrected']->modify->start }} - {{ $sheetTime['corrected']->modify->end }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                   Комментарий: {{ $sheetTime['corrected']->comment ?? '' }}"></i>
                                                             </div>
                                                         @endif
                                                     </div>
@@ -223,6 +226,7 @@
                                                                data-min_time = "{{ $sheetTime['min_time'] }}"
                                                                data-max_time = "{{ $sheetTime['max_time'] }}"
                                                                data-user-id = "{{ $sheetTime['user_id'] }}"
+                                                               data-comment = "{{ $sheetTime['corrected']?->comment ?? '' }}"
                                                             ></i>
                                                         </div>
                                                     @endif
@@ -277,6 +281,12 @@
                                 <input name="max_time" type="time" class="form-control" required/>
                             </div>
                         </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Комментарий</label>
+                        <div class="col-sm-9">
+                            <input name="comment" type="text" class="form-control" required/>
+                        </div>
+                    </div>
 
                 </div>
                 <div class="modal-footer">
@@ -323,6 +333,7 @@
         dataForm.date.value = payload.dateForForm
         dataForm.min_time.value = payload.min_time
         dataForm.max_time.value = payload.max_time
+        dataForm.comment.value = payload.comment
 
         showModal()
     }
@@ -362,6 +373,7 @@
         let url = (new URL(document.documentURI)).origin
             + '/api/sheet-time' + '/' + dataForm.sheet_time_id.value
             + '?user_id=' + dataForm.user_id.value
+            + '&comment=' + dataForm.comment.value
 
         let response = await fetch(url, {method: 'DELETE'});
 

@@ -14,6 +14,7 @@ class CorrectedDto implements Castable
         public string $userName,
         public IntervalDto $modify,
         public IntervalDto $original,
+        public ?string $comment = null,
     ){
         $this->is_isset = $this->userName != '';
     }
