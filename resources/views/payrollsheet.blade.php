@@ -127,6 +127,7 @@
                             <thead>
                             <tr>
                                 <th scope="col">#</th>
+                                <th scope="col">ID</th>
                                 <th scope="col">ФИО</th>
                                 <th scope="col">Должность</th>
                                 <th scope="col">Оклад</th>
@@ -137,8 +138,9 @@
                             </tr>
                             </thead>
                             <tbody>
-                                @foreach($salaryPayEmployees as $payEmployee)
+                                @foreach($salaryPayEmployees as $index => $payEmployee)
                                     <tr>
+                                        <td>{{ $index + 1 }}</td>
                                         <td>{{ $payEmployee->emp_code }}</td>
                                         <td>{{ $payEmployee->fio }}</td>
                                         <td>{{ $payEmployee->position }}</td>

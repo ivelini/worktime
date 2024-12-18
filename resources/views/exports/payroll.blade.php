@@ -2,6 +2,7 @@
     <thead>
     <tr>
         <th style="width: 50px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">#</th>
+        <th style="width: 50px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">ID</th>
         <th style="width: 200px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">ФИО</th>
         <th style="width: 200px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Должность</th>
         <th style="width: 100px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Оклад</th>
@@ -12,8 +13,9 @@
     </tr>
     </thead>
     <tbody>
-    @foreach($salaryPayEmployees as $payEmployee)
+    @foreach($salaryPayEmployees as $index => $payEmployee)
         <tr>
+            <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;">{{ $index + 1 }}</td>
             <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;">{{ $payEmployee->emp_code }}</td>
             <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;">{{ $payEmployee->fio }}</td>
             <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;">{{ $payEmployee->position }}</td>
