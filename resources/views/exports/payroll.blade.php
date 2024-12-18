@@ -32,6 +32,7 @@
         <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;"></td>
         <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;"></td>
         <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;"></td>
+        <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;"></td>
         <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px; font-weight: bold;">{{ $fullAdvance }}</td>
         <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;"></td>
         <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;"></td>

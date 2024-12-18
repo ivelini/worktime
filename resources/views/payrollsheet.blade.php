@@ -157,6 +157,7 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
+                                    <td></td>
                                     <td>{{ number_format($fullAdvance, 0, ' ', ' ') }}</td>
                                     <td></td>
                                     <td></td>
