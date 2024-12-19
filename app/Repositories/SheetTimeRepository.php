@@ -90,13 +90,20 @@ class SheetTimeRepository
                     MAX(emp_id) as emp_id,
                     MAX(emp_code) as emp_code,
                     concat(MAX(surname), ' ', MAX(name)) as fio,
+                    MAX(department) as department,
                     MAX(position) as position,
                     SUM(duration) as month_duration,
                     MAX(salary_amount) as salary_amount,
                     MAX(advance) as advance,
                     MAX(per_pay_hour) as per_pay_hour,
+                    MAX(salary_supplement) as salary_supplement,
+                    CASE
+                        WHEN MAX(salary_supplement) is null
+                            THEN CAST(MAX(per_pay_hour) AS TEXT)
+                            ELSE concat(MAX(per_pay_hour), ' (+', MAX(salary_supplement), ' доплата)')
+                    END as per_pay_hour_display,
                     GREATEST(
-                        (COALESCE(MAX(salary_amount), 0) + COALESCE(SUM(duration), 0) * COALESCE(MAX(per_pay_hour), 0)) - COALESCE(MAX(advance), 0),
+                        (COALESCE(MAX(salary_amount), 0) + COALESCE(SUM(duration), 0) * COALESCE(MAX(per_pay_hour), 0)) - COALESCE(MAX(advance), 0) + COALESCE(MAX(salary_supplement), 0),
                         0
                     ) as salary_pay
                 ")

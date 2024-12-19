@@ -8,7 +8,7 @@
         <th style="width: 100px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Оклад</th>
         <th style="width: 100px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Аванс</th>
         <th style="width: 100px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Отработано</th>
-        <th style="width: 100px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Ставка за час</th>
+        <th style="width: 150px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Ставка за час</th>
         <th style="width: 100px; border: 1px solid #000; text-align: center; padding: 8px; font-size: 12px; font-weight: bold;">Оплата</th>
     </tr>
     </thead>
@@ -22,7 +22,7 @@
             <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;">{{ $payEmployee->salary_amount }}</td>
             <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;">{{ $payEmployee->advance }}</td>
             <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;">{{ $payEmployee->month_duration }}</td>
-            <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;">{{ $payEmployee->per_pay_hour }}</td>
+            <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;">{{ $payEmployee->per_pay_hour_display }}</td>
             <td style="border: 1px solid #000; text-align: left; padding: 8px; font-size: 12px;">{{ $payEmployee->salary_pay }}</td>
         </tr>
     @endforeach

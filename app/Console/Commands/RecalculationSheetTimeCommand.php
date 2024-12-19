@@ -23,7 +23,7 @@ class RecalculationSheetTimeCommand extends Command
     protected $signature = 'recalculation:sheet-time
                                     {start? : Начало периода}
                                     {end? : Конец периода}
-                                    {emp_code? : Конец периода}';
+                                    {emp_code? : ID сотрудника}';
 
     /**
      * The console command description.
@@ -69,6 +69,8 @@ class RecalculationSheetTimeCommand extends Command
                 /** @var Employee $employee */
                 $employee = Employee::findOrFail($rawPunchDay->emp_id);
 
+                $rawPunchDay->department = $employee->department;
+
                 //Загружаем отношения, если не загружены
                 if(count(array_diff(['shifts'], array_keys($employee->getRelations()))) > 0) {
                     $employee->load(['shifts']);
@@ -78,7 +80,6 @@ class RecalculationSheetTimeCommand extends Command
                 $shift = $employee->getCurrentShift($rawPunchDay->date);            //Смена
                 $shift->timeInterval->in_time($rawPunchDay->date);                  //Устанавливаем дату
                 $shift->timeInterval->breaktime?->period_start($rawPunchDay->date);  //Устанавливаем дату для перерыва
-
 
                 $minTime = Carbon::parse($rawPunchDay->date . ' ' .$rawPunchDay->min_time)->setSeconds(0);
                 $maxTime = Carbon::parse($rawPunchDay->date . ' ' .$rawPunchDay->max_time)->setSeconds(0);
@@ -108,6 +109,7 @@ class RecalculationSheetTimeCommand extends Command
                 $rawPunchDay->advance = $employee->getCurrentAdvance($rawPunchDay->date)?->advance_amount;
                 $rawPunchDay->salary_amount = $payroll?->salary_amount == 1 ? null : $payroll?->salary_amount;
                 $rawPunchDay->per_pay_hour = $payroll?->pay_per_hour;
+                $rawPunchDay->salary_supplement = $payroll?->salary_supplement;
 
                 SheetTime::updateOrCreate(
                     [

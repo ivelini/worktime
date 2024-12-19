@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $prepare_max_time
  * @property string $work_min_time
  * @property string $work_max_time
+ * @property string $department
+ * @property ?int $salary_supplement
  * @property ?Carbon $work_min_time_carbon
  * @property ?Carbon $work_max_time_carbon
  * @property int $duration
@@ -51,6 +53,8 @@ class SheetTime extends Model
         'per_pay_hour',
         'is_night',
         'corrected',
+        'department',
+        'salary_supplement',
     ];
 
     protected function casts()

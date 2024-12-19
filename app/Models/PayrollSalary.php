@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
  * @property int $salary_amount         //Оклад
  *
  * @property ?int $pay_per_hour         //Оплата за час работы
+ * @property  ?int $salary_supplement   //Надбавка к зарплате
  */
 class PayrollSalary extends Model
 {
@@ -51,6 +52,29 @@ class PayrollSalary extends Model
                 ?->formula;
 
             return !empty($formula) ? (int) substr($formula, strpos($formula, '*') + 1) : null;
+        });
+    }
+
+    /**
+     * Надбавка к зарплате
+     */
+    public function salarySupplement(): Attribute
+    {
+        return Attribute::get(function () {
+
+            $formula = DB::connection('biotime')
+                ->table('payroll_increasementformula')
+                ->whereIn('id', DB::connection('biotime')
+                    ->table('payroll_salarystructure_increasementformula')
+                    ->select('payroll_salarystructure_increasementformula.increasementformula_id')
+                    ->where('salarystructure_id', $this->id)
+                    ->pluck('increasementformula_id')
+                    ->toArray()
+                )
+                ->where('name', 'like', '%Доплата%')->first()
+                ?->formula;
+
+            return !empty($formula) ? (int)substr($formula, strpos($formula, '+') + 1) : null;
         });
     }
 }

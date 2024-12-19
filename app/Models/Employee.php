@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\DB;
  * @property Collection $transactions
  * @property Collection $advances
  * @property Collection $payrolls
+ *
+ * @property string $department
  */
 class Employee extends Model
 {
@@ -34,6 +36,19 @@ class Employee extends Model
         return [
             'status' => 'integer',
         ];
+    }
+
+    /**
+     * Отдел
+     */
+    protected function department(): Attribute
+    {
+        return Attribute::get(fn() => DB::connection('biotime')
+            ->table('personnel_department')
+            ->where('id', $this->department_id)
+            ->first()
+            ?->dept_name
+        );
     }
 
     /**

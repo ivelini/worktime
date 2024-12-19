@@ -166,7 +166,7 @@
                                         <td>{{ $payEmployee->salary_amount }}</td>
                                         <td>{{ $payEmployee->advance }}</td>
                                         <td>{{ $payEmployee->month_duration }}</td>
-                                        <td>{{ $payEmployee->per_pay_hour }}</td>
+                                        <td>{{ $payEmployee->per_pay_hour_display }}</td>
                                         <td>{{ number_format($payEmployee->salary_pay, 0, ' ', ' ') }}</td>
                                     </tr>
                                 @endforeach
