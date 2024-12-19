@@ -104,6 +104,7 @@ class SheetTimeRepository
             ->groupBy('emp_id')
             ->orderBy('position')
             ->orderBy('fio')
-            ->get();
+            ->get()
+            ->sortBy(fn (SheetTime $sheetTime) => str_contains($sheetTime->position, 'Офис'));
     }
 }

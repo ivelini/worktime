@@ -20,7 +20,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('report')->group(function () {
         Route::get('timesheet', [ReportController::class, 'timeSheet'])->name('report.timesheet');
 
-        Route::get('payrollheet', [ReportController::class, 'payrollSheet'])
+        Route::get('payrollheet', fn() => redirect()->route('report.payrollsheet'));
+        Route::get('payrollsheet', [ReportController::class, 'payrollSheet'])
             ->middleware(UserTypeMiddleware::class. ':' .User::$ADMIN)
             ->name('report.payrollsheet');
 
