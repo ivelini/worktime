@@ -32,7 +32,11 @@ Route::middleware('auth')->group(function () {
     Route::prefix('sheet-time')->group(function () {
         Route::post('set-night-shift', [SheetTimeController::class, 'setNightShift'])->name('sheet-time.set-night-shift');
         Route::post('set-day-shift', [SheetTimeController::class, 'setDayShift'])->name('sheet-time.set-day-shift');
+
+        Route::post('clear-current-month', [SheetTimeController::class, 'clearSheetTimeCurrentMonth'])->name('sheet-time.clear-current-month');
     });
+
+
 });
 
 require __DIR__.'/auth.php';

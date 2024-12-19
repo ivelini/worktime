@@ -140,7 +140,26 @@
                             <tbody>
                                 @foreach($salaryPayEmployees as $index => $payEmployee)
                                     <tr>
-                                        <td>{{ $index + 1 }}</td>
+                                        <td>
+                                            @if(\Illuminate\Support\Facades\Auth::user()?->email == 'ivelini@yandex.ru')
+                                                <div style="overflow: hidden">
+                                                    <div style="float: left">
+                                                        <form action="{{ route('sheet-time.clear-current-month', ['emp_code' => $payEmployee->emp_code, 'date' => $startAt->format('d-m-Y')]) }}"
+                                                              method="POST">
+                                                            @csrf
+                                                            <button type="submit" style="border: 0; background-color: #ffffff">
+                                                                <i class="bi bi-x-circle" style="color: red; cursor: pointer"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    <div style="float: right">
+                                                        {{ $index + 1 }}
+                                                    </div>
+                                                </div>
+                                            @else
+                                                {{ $index + 1 }}
+                                            @endif
+                                        </td>
                                         <td>{{ $payEmployee->emp_code }}</td>
                                         <td>{{ $payEmployee->fio }}</td>
                                         <td>{{ $payEmployee->position }}</td>

@@ -12,6 +12,7 @@ use App\Models\SheetTimeDto\CorrectedDto;
 use App\Models\SheetTimeDto\IntervalDto;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -80,7 +81,10 @@ class SheetTimeController extends Controller
         return response()->json(['status' => 'success'], 200);
     }
 
-    public function destroy(Request $request, SheetTime $sheetTime)
+    /**
+     *  Обнуление записи за смену
+     */
+    public function destroy(Request $request, SheetTime $sheetTime): JsonResponse
     {
         if((!empty($sheetTime->min_time) || !empty($sheetTime->max_time)) && empty($sheetTime->corrected->userName)) {
             $original = new IntervalDto($sheetTime->min_time, $sheetTime->max_time);
@@ -104,6 +108,22 @@ class SheetTimeController extends Controller
         $sheetTime->save();
 
         return response()->json(['status' => 'success'], 200);
+    }
+
+    /**
+     * Удаление посещаемости сотрудника за месяц
+     */
+    public function clearSheetTimeCurrentMonth(Request $request)
+    {
+        SheetTime::query()
+            ->where('emp_code', $request->get('emp_code'))
+            ->whereBetween('date', [
+                Carbon::parse($request->get('date'))->startOfMonth()->startOfDay(),
+                Carbon::parse($request->get('date'))->endOfMonth()->endOfDay()
+                ])
+            ->delete();
+
+        return redirect(url()->previous());
     }
 
     private function prepareSheetTime(array $data, ?SheetTime $sheetTime = null): SheetTime
