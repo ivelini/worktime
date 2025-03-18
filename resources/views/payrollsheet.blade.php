@@ -139,7 +139,7 @@
                             </thead>
                             <tbody>
                                 @foreach($salaryPayEmployees as $index => $payEmployee)
-                                    <tr>
+                                    <tr style="vertical-align: middle">
                                         <td>
                                             @if(\Illuminate\Support\Facades\Auth::user()?->email == 'ivelini@yandex.ru')
                                                 <div style="overflow: hidden">
@@ -161,8 +161,14 @@
                                             @endif
                                         </td>
                                         <td>{{ $payEmployee->emp_code }}</td>
-                                        <td>{{ $payEmployee->fio }}</td>
-                                        <td>{{ $payEmployee->position }}</td>
+                                        <td>
+                                            @if(\Illuminate\Support\Facades\Storage::disk('public')->exists('img/'. $payEmployee->emp_code. '.jpg'))
+                                                <img src="{{ asset('storage/img/' . $payEmployee->emp_code. '.jpg')  }}" width="80px"/>
+                                            @endif
+
+                                            {{ $payEmployee->fio }}
+                                        </td>
+                                        <td >{{ $payEmployee->position }}</td>
                                         <td>{{ $payEmployee->salary_amount }}</td>
                                         <td>{{ $payEmployee->advance }}</td>
                                         <td>{{ $payEmployee->month_duration }}</td>
