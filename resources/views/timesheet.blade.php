@@ -143,6 +143,11 @@
 
                                     <tr>
                                         <td colspan="6" style="background: #e9ecef">
+
+                                            @if(\Illuminate\Support\Facades\Storage::disk('public')->exists('img/'. $sheetTimeRowsEmployee[0]['emp_id']. '.jpg'))
+                                                <img src="{{ asset('storage/img/' . $sheetTimeRowsEmployee[0]['emp_id']. '.jpg')  }}" width="150px"/>
+                                            @endif
+
                                             <strong>{{ $key }}</strong>
                                         </td>
                                     </tr>
