@@ -7,9 +7,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-class GetPhotoEmployesCommand extends Command
+class GetPhotoEmploysCommand extends Command
 {
-    protected $signature = 'get:photo-employes';
+    protected $signature = 'get:photo-employs';
 
     protected $description = 'Получение фоторгафии сотрудника с biotime';
 
