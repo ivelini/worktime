@@ -9,14 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserTypeMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next, string $type): Response
+    public function handle(Request $request, Closure $next, ...$types): Response
     {
-        return Auth::user()->type == $type
+        return in_array(Auth::user()->type, $types)
             ? $next($request)
             : redirect('/login');
     }

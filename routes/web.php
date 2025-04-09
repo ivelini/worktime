@@ -22,7 +22,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('payrollheet', fn() => redirect()->route('report.payrollsheet'));
         Route::get('payrollsheet', [ReportController::class, 'payrollSheet'])
-            ->middleware(UserTypeMiddleware::class. ':' .User::$ADMIN)
+            ->middleware(UserTypeMiddleware::class. ':' .User::$ADMIN. ',' .User::$BUH)
             ->name('report.payrollsheet');
 
         Route::get('export/timesheet', [ReportController::class, 'exportSheetTime'])->name('report.export.timesheet');

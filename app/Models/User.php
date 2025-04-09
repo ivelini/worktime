@@ -13,6 +13,7 @@ class User extends Authenticatable
 
     public static string $ADMIN = 'admin';
     public static string $MASTER = 'master';
+    public static string $BUH = 'buh';
 
     protected $fillable = [
         'name',

@@ -15,7 +15,9 @@
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
     <!-- Vendor CSS Files -->
     <link href="{{asset('assets/vendor/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
@@ -72,7 +74,10 @@
                 <i class="bi bi-grid"></i>
                 <span>Учет рабочего времени</span>
             </a>
-            @if(\Illuminate\Support\Facades\Auth::user()?->type == \App\Models\User::$ADMIN)
+            @if(
+                \Illuminate\Support\Facades\Auth::user()?->type == \App\Models\User::$ADMIN ||
+                \Illuminate\Support\Facades\Auth::user()?->type == \App\Models\User::$BUH
+               )
                 <a class="nav-link collapsed" href="{{ route('report.payrollsheet') }}">
                     <i class="bi bi-grid"></i>
                     <span>Учет оплаты труда</span>
@@ -94,25 +99,30 @@
                             <div class="row">
                                 <label for="inputDate" class="col-sm-1 col-form-label">С: </label>
                                 <div class="col-sm-2">
-                                    <input type="date" name="start_at" class="form-control" value="{{ $startAt->format('Y-m-d') }}">
+                                    <input type="date" name="start_at" class="form-control"
+                                           value="{{ $startAt->format('Y-m-d') }}">
                                 </div>
 
                                 <label for="inputDate" class="col-sm-1 col-form-label">По: </label>
                                 <div class="col-sm-2">
-                                    <input type="date" name="end_at" class="form-control" value="{{ $endAt->format('Y-m-d') }}">
+                                    <input type="date" name="end_at" class="form-control"
+                                           value="{{ $endAt->format('Y-m-d') }}">
                                 </div>
 
                                 <div class="col-sm-1">
                                     <button type="submit" class="btn btn-primary">Показать</button>
                                 </div>
                                 <div class="col-sm-2">
-                                    @if(\Illuminate\Support\Facades\Auth::user()->type == 'admin')
-                                        <a href="{{ route('report.export.timesheet', request()->all()) }}" class="btn btn-info">Выгрузить в Excel</a>
+                                    @if(\Illuminate\Support\Facades\Auth::user()->type == \App\Models\User::$ADMIN || \Illuminate\Support\Facades\Auth::user()->type == \App\Models\User::$BUH)
+                                        <a href="{{ route('report.export.timesheet', request()->all()) }}"
+                                           class="btn btn-info">Выгрузить в Excel</a>
                                     @endif
                                 </div>
                                 <div class="col-sm-3">
-                                    <a href="{{ route('report.timesheet', ['start_at' => now()->subMonth()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->subMonth()->endOfMonth()->format('Y-m-d')]) }}">Прошлый месяц&nbsp;&nbsp;&nbsp;</a>
-                                    <a href="{{ route('report.timesheet', ['start_at' => now()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->format('Y-m-d')]) }}">&nbsp;&nbsp;&nbsp; Этот месяц </a>
+                                    <a href="{{ route('report.timesheet', ['start_at' => now()->subMonth()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->subMonth()->endOfMonth()->format('Y-m-d')]) }}">Прошлый
+                                        месяц&nbsp;&nbsp;&nbsp;</a>
+                                    <a href="{{ route('report.timesheet', ['start_at' => now()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->format('Y-m-d')]) }}">&nbsp;&nbsp;&nbsp;
+                                        Этот месяц </a>
                                 </div>
                             </div>
                         </form>
@@ -125,7 +135,8 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Табель рабочего времени c <b>{{ $startAt->format('d-m-Y') }}</b> по <b>{{ $endAt->format('d-m-Y') }}</b></h5>
+                        <h5 class="card-title">Табель рабочего времени c <b>{{ $startAt->format('d-m-Y') }}</b> по
+                            <b>{{ $endAt->format('d-m-Y') }}</b></h5>
                         <table class="table table-bordered">
                             <thead>
                             <tr>
@@ -139,27 +150,29 @@
                             </thead>
                             <tbody>
 
-                                @foreach($sheetTimeRows as $key => $sheetTimeRowsEmployee)
+                            @foreach($sheetTimeRows as $key => $sheetTimeRowsEmployee)
 
-                                    <tr>
-                                        <td colspan="6" style="background: #e9ecef">
+                                <tr>
+                                    <td colspan="6" style="background: #e9ecef">
 
-                                            @if(\Illuminate\Support\Facades\Storage::disk('public')->exists('img/'. $sheetTimeRowsEmployee[0]['emp_id']. '.jpg'))
-                                                <img src="{{ asset('storage/img/' . $sheetTimeRowsEmployee[0]['emp_id']. '.jpg')  }}" width="150px"/>
-                                            @endif
-
-                                            <strong>{{ $key }}</strong>
-                                        </td>
-                                    </tr>
-
-{{--                                    @dd($sheetTimeRowsEmployee);--}}
-                                    @foreach($sheetTimeRowsEmployee as $sheetTime)
-
-                                        @if(isset($sheetTime['sheet_time_id']))
-                                            <tr id="sheet_time_{{ $sheetTime['sheet_time_id'] + 2 }}">
-                                        @else
-                                            <tr>
+                                        @if(\Illuminate\Support\Facades\Storage::disk('public')->exists('img/'. $sheetTimeRowsEmployee[0]['emp_id']. '.jpg'))
+                                            <img
+                                                src="{{ asset('storage/img/' . $sheetTimeRowsEmployee[0]['emp_id']. '.jpg')  }}"
+                                                width="150px"/>
                                         @endif
+
+                                        <strong>{{ $key }}</strong>
+                                    </td>
+                                </tr>
+
+                                {{--                                    @dd($sheetTimeRowsEmployee);--}}
+                                @foreach($sheetTimeRowsEmployee as $sheetTime)
+
+                                    @if(isset($sheetTime['sheet_time_id']))
+                                        <tr id="sheet_time_{{ $sheetTime['sheet_time_id'] + 2 }}">
+                                    @else
+                                        <tr>
+                                            @endif
 
                                             <td>{{ $sheetTime['date'] }}</td>
                                             <td>{{ $sheetTime['dey_of_the_week'] }}</td>
@@ -175,24 +188,44 @@
 
                                                     <div style="float: right;">
 
-
+                                                        @if(\Illuminate\Support\Facades\Auth::user()->type !== \App\Models\User::$BUH)
                                                             @if($sheetTime['is_night'])
 
-                                                                <form action="{{ route('sheet-time.set-day-shift') }}" method="POST">
+                                                                <form action="{{ route('sheet-time.set-day-shift') }}"
+                                                                      method="POST">
                                                                     @csrf
-                                                                    <input name="sheet_time_id" value="{{ $sheetTime['sheet_time_id'] }}" hidden />
-                                                                    <input name="anchor" value="sheet_time_{{ $sheetTime['sheet_time_id'] }}" hidden />
-                                                                    <button type="submit" style="font-size: 10px; background-color: #b1b1b1; opacity: 0.5">Перевод в дневную смену</button>
+                                                                    <input name="sheet_time_id"
+                                                                           value="{{ $sheetTime['sheet_time_id'] }}"
+                                                                           hidden/>
+                                                                    <input name="anchor"
+                                                                           value="sheet_time_{{ $sheetTime['sheet_time_id'] }}"
+                                                                           hidden/>
+                                                                    <button type="submit"
+                                                                            style="font-size: 10px; background-color: #b1b1b1; opacity: 0.5">
+                                                                        Перевод в дневную смену
+                                                                    </button>
                                                                 </form>
                                                             @else
 
-                                                                <form action="{{ route('sheet-time.set-night-shift') }}" method="POST">
+                                                                <form action="{{ route('sheet-time.set-night-shift') }}"
+                                                                      method="POST">
                                                                     @csrf
-                                                                    <input name="sheet_time_id" value="{{ $sheetTime['sheet_time_id'] }}" hidden />
-                                                                    <input name="anchor" value="sheet_time_{{ $sheetTime['sheet_time_id'] }}" hidden />
-                                                                    <button type="submit" style="font-size: 10px; background-color: #f5f5f5; opacity: 0.5">Перевод в ночную смену</button>
+                                                                    <input name="sheet_time_id"
+                                                                           value="{{ $sheetTime['sheet_time_id'] }}"
+                                                                           hidden/>
+                                                                    <input name="anchor"
+                                                                           value="sheet_time_{{ $sheetTime['sheet_time_id'] }}"
+                                                                           hidden/>
+                                                                    <button type="submit"
+                                                                            style="font-size: 10px; background-color: #f5f5f5; opacity: 0.5">
+                                                                        Перевод в ночную смену
+                                                                    </button>
                                                                 </form>
                                                             @endif
+
+                                                        @endif
+
+
                                                     </div>
                                                 @endif
                                             </td>
@@ -217,29 +250,30 @@
                                                         @endif
                                                     </div>
 
-                                                    @if(! $loop->last)
-                                                        <div style="float: right" class="icon" onclick="getModalCorrectSheetTime(event.target.dataset)">
+                                                    @if(! $loop->last && Auth::user()->type !== \App\Models\User::$BUH)
+                                                        <div style="float: right" class="icon"
+                                                             onclick="getModalCorrectSheetTime(event.target.dataset)">
                                                             <i style="cursor: pointer; color: #d5d5d5"
                                                                class="bi bi-pencil"
-                                                               data-emp-id = "{{ $sheetTime['emp_id'] }}"
-                                                               data-emp-name = "{{ $sheetTime['emp_name'] }}"
-                                                               data-date = "{{ $sheetTime['date'] }}"
-                                                               data-date-for-form = "{{ $sheetTime['date_for_form'] }}"
-                                                               data-day-of-the-week = "{{ $sheetTime['dey_of_the_week'] }}"
-                                                               data-sheet-time-id = "{{ $sheetTime['sheet_time_id'] }}"
-                                                               data-is-night = "{{ $sheetTime['is_night'] ? 'true' : 'false' }}"
-                                                               data-min_time = "{{ $sheetTime['min_time'] }}"
-                                                               data-max_time = "{{ $sheetTime['max_time'] }}"
-                                                               data-user-id = "{{ $sheetTime['user_id'] }}"
-                                                               data-comment = "{{ $sheetTime['corrected']?->comment ?? '' }}"
+                                                               data-emp-id="{{ $sheetTime['emp_id'] }}"
+                                                               data-emp-name="{{ $sheetTime['emp_name'] }}"
+                                                               data-date="{{ $sheetTime['date'] }}"
+                                                               data-date-for-form="{{ $sheetTime['date_for_form'] }}"
+                                                               data-day-of-the-week="{{ $sheetTime['dey_of_the_week'] }}"
+                                                               data-sheet-time-id="{{ $sheetTime['sheet_time_id'] }}"
+                                                               data-is-night="{{ $sheetTime['is_night'] ? 'true' : 'false' }}"
+                                                               data-min_time="{{ $sheetTime['min_time'] }}"
+                                                               data-max_time="{{ $sheetTime['max_time'] }}"
+                                                               data-user-id="{{ $sheetTime['user_id'] }}"
+                                                               data-comment="{{ $sheetTime['corrected']?->comment ?? '' }}"
                                                             ></i>
                                                         </div>
                                                     @endif
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
-                                @endforeach
+                                        @endforeach
+                                        @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -258,34 +292,34 @@
                     <button type="button" class="btn-close" aria-label="Close" onclick="closeModal()"></button>
                 </div>
                 <div class="modal-body">
-                        <input name="user_id" type="text" class="form-control" hidden />
-                        <input name="emp_id" type="text" class="form-control" hidden />
-                        <input name="sheet_time_id" type="text" class="form-control" hidden />
-                        <input name="date" type="date" class="form-control" hidden />
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-3 col-form-label">Сотрудник</label>
-                            <div class="col-sm-9">
-                                <input name="emp_name" type="text" class="form-control" readonly />
-                            </div>
+                    <input name="user_id" type="text" class="form-control" hidden/>
+                    <input name="emp_id" type="text" class="form-control" hidden/>
+                    <input name="sheet_time_id" type="text" class="form-control" hidden/>
+                    <input name="date" type="date" class="form-control" hidden/>
+                    <div class="row mb-3">
+                        <label for="inputText" class="col-sm-3 col-form-label">Сотрудник</label>
+                        <div class="col-sm-9">
+                            <input name="emp_name" type="text" class="form-control" readonly/>
                         </div>
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-3 col-form-label">Дата</label>
-                            <div class="col-sm-9">
-                                <input name="date_string" type="text" class="form-control" readonly>
-                            </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="inputText" class="col-sm-3 col-form-label">Дата</label>
+                        <div class="col-sm-9">
+                            <input name="date_string" type="text" class="form-control" readonly>
                         </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Приход</label>
-                            <div class="col-sm-9">
-                                <input name="min_time" type="time" class="form-control" required/>
-                            </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Приход</label>
+                        <div class="col-sm-9">
+                            <input name="min_time" type="time" class="form-control" required/>
                         </div>
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Уход</label>
-                            <div class="col-sm-9">
-                                <input name="max_time" type="time" class="form-control" required/>
-                            </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Уход</label>
+                        <div class="col-sm-9">
+                            <input name="max_time" type="time" class="form-control" required/>
                         </div>
+                    </div>
                     <div class="row mb-3">
                         <label class="col-sm-3 col-form-label">Комментарий</label>
                         <div class="col-sm-9">
@@ -295,7 +329,9 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" style="margin-right: 100px" class="btn btn-danger" onclick="clearSheetTime()">Убрать смену</button>
+                    <button type="button" style="margin-right: 100px" class="btn btn-danger" onclick="clearSheetTime()">
+                        Убрать смену
+                    </button>
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Отменить</button>
                     <button type="submit" class="btn btn-primary">Сохранить</button>
                 </div>
@@ -304,7 +340,8 @@
     </div>
 </div>
 
-<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+        class="bi bi-arrow-up-short"></i></a>
 <!-- Vendor JS Files -->
 <script src="{{asset('assets/vendor/apexcharts/apexcharts.min.js')}}"></script>
 <script src="{{asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
@@ -359,7 +396,7 @@
 
         let url = (new URL(document.documentURI)).origin + '/api/sheet-time'
 
-        if(dataForm.sheet_time_id.value !== '') {
+        if (dataForm.sheet_time_id.value !== '') {
             url = url + '/' + dataForm.sheet_time_id.value
         }
 
@@ -368,7 +405,7 @@
             body: new FormData(dataForm)
         });
 
-        if(response.status === 200) {
+        if (response.status === 200) {
             closeModal()
             window.location.reload()
         }
@@ -382,7 +419,7 @@
 
         let response = await fetch(url, {method: 'DELETE'});
 
-        if(response.status === 200) {
+        if (response.status === 200) {
             closeModal()
             window.location.reload()
         }
