@@ -10,7 +10,7 @@ return [
         'time_interval' => [
             'alias' => '20:00-08:00 (ночная)',
             'in_time' => $inTime,
-            'work_time_duration' => 720,
+            'work_time_duration' => 660,
             'early_in' => true,
             'min_early_in' => 60,
             'late_out' => true,
