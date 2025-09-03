@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Jobs\HasWorkTimeTrait;
 use App\Jobs\RecalculateDalySheetTimeJob;
 use App\Jobs\RecalculateNightSheetTimeJob;
+use App\Models\Breaktime;
 use App\Models\Employee;
 use App\Models\SheetTime;
 use App\Models\SheetTimeDto\CorrectedDto;
@@ -181,7 +182,17 @@ class SheetTimeController extends Controller
         //Если это ночная смена
         if($start > $end) {
             $end->addDay();
-            $breaktime = null;
+
+            //Получаем перерыв для данной смены
+            $breakTime = new BreakTime(config('shift.night.break_time'));
+
+            //Разбиваем time_start в break_time на часы, минуты, секунды
+            preg_match('/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/', config('shift.night.break_time.time_start'), $matches);
+
+            //Задаем время начала перерыва
+            $breakTime->period_start = $end
+                ->clone()
+                ->setTime($matches[1], $matches[2], $matches[3]);
         }
 
         $sheetTime->duration = $this->durationWork($start, $end, $breaktime);
