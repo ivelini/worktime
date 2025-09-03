@@ -30,6 +30,18 @@ class RecalculateNightSheetTimeJob implements ShouldQueue
         $nightTimeInterval = new TimeInterval(config('shift.night.time_interval'));
         $nightTimeInterval->in_time = $nightTimeInterval->in_time->setDate($this->sheetTime->date->year, $this->sheetTime->date->month, $this->sheetTime->date->day);
 
+        //Получаем перерыв для данной смены
+        $breakTime = new BreakTime(config('shift.night.break_time'));
+
+        //Разбиваем time_start в break_time на часы, минуты, секунды
+        preg_match('/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/', config('shift.night.break_time.time_start'), $matches);
+
+        //Задаем время начала перерыва
+        $breakTime->period_start = $this->sheetTime->date
+            ->clone()
+            ->setTime($matches[1], $matches[2], $matches[3])
+            ->addDay();
+
         //Крайняя правая отметка за текущий день в $sheetTime
         $minTime = Transaction::query()
             ->where('iclock_transaction.emp_id', '=', $this->sheetTime->emp_id)
@@ -63,8 +75,7 @@ class RecalculateNightSheetTimeJob implements ShouldQueue
         //Вычисляем время ухода
         $workMaxTime = $this->maxTimeWork($nightTimeInterval, $maxTime);
         //Расчет рабочего времени
-        $workDuration = $this->durationWork($workMinTime, $workMaxTime);
-
+        $workDuration = $this->durationWork($workMinTime, $workMaxTime, $breakTime);
 
         //Записываем смену в $sheetTime
         $this->sheetTime->update([
