@@ -108,7 +108,7 @@ return [
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
-            'encrypt' => 'optional', // Отключить шифрование, если требуется
+            'encrypt' => 'yes', // Отключить шифрование, если требуется
             'trust_server_certificate' => true, // Доверять сертификатам сервера
         ],
 
