@@ -156,6 +156,7 @@ class RecalculationSheetTimeCommand extends Command
                     'salary_amount' => $employee->getCurrentPayroll(now())?->salary_amount,
                     'per_pay_hour' => $employee->getCurrentPayroll(now())?->pay_per_hour,
                     'advance' => $employee->getCurrentAdvance(now())?->advance_amount,
+                    'department' => $employee->department,
                 ];
 
                 $i = clone $start;

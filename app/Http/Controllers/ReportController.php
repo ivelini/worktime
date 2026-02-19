@@ -46,8 +46,10 @@ class ReportController extends Controller
         $fullAdvance = $salaryPayEmployees->sum('advance');
         $fullSalaryPay = $salaryPayEmployees->sum('salary_pay');
 
+        $groupedPayEmployees = $salaryPayEmployees->groupBy('department');
+
         return view('payrollsheet', compact(
-            'salaryPayEmployees',
+            'groupedPayEmployees',
             'fullAdvance',
             'fullSalaryPay',
             'startAt',

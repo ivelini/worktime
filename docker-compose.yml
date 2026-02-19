@@ -24,7 +24,7 @@ services:
       - app-network
 
   app:
-    image: app:php8.3-fpm
+    image: app:php8.3-fpm-mssql
     container_name: ${DOCKER_APP_NAME:-project}-app
     hostname: app-service
     build:

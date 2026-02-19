@@ -30,8 +30,8 @@ RUN apt-get update && apt-get install -y \
     unixodbc \
     unixodbc-dev \
     odbcinst \
-    odbcinst1debian2 \
-    libodbc1 \
+    libodbc2 \
+    libodbcinst2 \
     libqt5sql5-odbc
 
 # Install PECL and PEAR extensions

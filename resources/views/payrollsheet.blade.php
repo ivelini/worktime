@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+@php
+    use \Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Facades\Storage;
+@endphp
+
+    <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -15,7 +20,9 @@
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
     <!-- Vendor CSS Files -->
     <link href="{{asset('assets/vendor/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
@@ -93,23 +100,28 @@
                             <div class="row">
                                 <label for="inputDate" class="col-sm-1 col-form-label">С: </label>
                                 <div class="col-sm-2">
-                                    <input type="date" name="start_at" class="form-control" value="{{ $startAt->format('Y-m-d') }}">
+                                    <input type="date" name="start_at" class="form-control"
+                                           value="{{ $startAt->format('Y-m-d') }}">
                                 </div>
 
                                 <label for="inputDate" class="col-sm-1 col-form-label">По: </label>
                                 <div class="col-sm-2">
-                                    <input type="date" name="end_at" class="form-control" value="{{ $endAt->format('Y-m-d') }}">
+                                    <input type="date" name="end_at" class="form-control"
+                                           value="{{ $endAt->format('Y-m-d') }}">
                                 </div>
 
                                 <div class="col-sm-1">
                                     <button type="submit" class="btn btn-primary">Показать</button>
                                 </div>
                                 <div class="col-sm-2">
-                                    <a href="{{ route('report.export.payroll', request()->all()) }}" class="btn btn-info">Выгрузить в Excel</a>
+                                    <a href="{{ route('report.export.payroll', request()->all()) }}"
+                                       class="btn btn-info">Выгрузить в Excel</a>
                                 </div>
                                 <div class="col-sm-3">
-                                    <a href="{{ route('report.payrollsheet', ['start_at' => now()->subMonth()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->subMonth()->endOfMonth()->format('Y-m-d')]) }}">Прошлый месяц&nbsp;&nbsp;&nbsp;</a>
-                                    <a href="{{ route('report.payrollsheet', ['start_at' => now()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->endOfMonth()->format('Y-m-d')]) }}">&nbsp;&nbsp;&nbsp; Этот месяц </a>
+                                    <a href="{{ route('report.payrollsheet', ['start_at' => now()->subMonth()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->subMonth()->endOfMonth()->format('Y-m-d')]) }}">Прошлый
+                                        месяц&nbsp;&nbsp;&nbsp;</a>
+                                    <a href="{{ route('report.payrollsheet', ['start_at' => now()->startOfMonth()->format('Y-m-d'), 'end_at' => now()->endOfMonth()->format('Y-m-d')]) }}">&nbsp;&nbsp;&nbsp;
+                                        Этот месяц </a>
                                 </div>
                             </div>
                         </form>
@@ -122,7 +134,8 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Табель учета заработной платы c <b>{{ $startAt->format('d-m-Y') }}</b> по <b>{{ $endAt->format('d-m-Y') }}</b></h5>
+                        <h5 class="card-title">Табель учета заработной платы c <b>{{ $startAt->format('d-m-Y') }}</b> по
+                            <b>{{ $endAt->format('d-m-Y') }}</b></h5>
                         <table class="table table-bordered">
                             <thead>
                             <tr>
@@ -138,17 +151,25 @@
                             </tr>
                             </thead>
                             <tbody>
-                                @foreach($salaryPayEmployees as $index => $payEmployee)
+                            @foreach($groupedPayEmployees as $groupName => $payEmployees)
+
+                                <tr style="vertical-align: middle">
+                                    <td colspan="9" style="font-weight: bold; background: #e9ecef">{{ $groupName }}</td>
+                                </tr>
+                                @foreach($payEmployees as $index => $payEmployee)
                                     <tr style="vertical-align: middle">
                                         <td>
-                                            @if(\Illuminate\Support\Facades\Auth::user()?->email == 'ivelini@yandex.ru')
+                                            @if(Auth::user()?->email == 'ivelini@yandex.ru')
                                                 <div style="overflow: hidden">
                                                     <div style="float: left">
-                                                        <form action="{{ route('sheet-time.clear-current-month', ['emp_code' => $payEmployee->emp_code, 'date' => $startAt->format('d-m-Y')]) }}"
-                                                              method="POST">
+                                                        <form
+                                                            action="{{ route('sheet-time.clear-current-month', ['emp_code' => $payEmployee->emp_code, 'date' => $startAt->format('d-m-Y')]) }}"
+                                                            method="POST">
                                                             @csrf
-                                                            <button type="submit" style="border: 0; background-color: #ffffff">
-                                                                <i class="bi bi-x-circle" style="color: red; cursor: pointer"></i>
+                                                            <button type="submit"
+                                                                    style="border: 0; background-color: #ffffff">
+                                                                <i class="bi bi-x-circle"
+                                                                   style="color: red; cursor: pointer"></i>
                                                             </button>
                                                         </form>
                                                     </div>
@@ -162,13 +183,14 @@
                                         </td>
                                         <td>{{ $payEmployee->emp_code }}</td>
                                         <td>
-                                            @if(\Illuminate\Support\Facades\Storage::disk('public')->exists('img/'. $payEmployee->emp_code. '.jpg'))
-                                                <img src="{{ asset('storage/img/' . $payEmployee->emp_code. '.jpg')  }}" width="80px"/>
+                                            @if(Storage::disk('public')->exists('img/'. $payEmployee->emp_code. '.jpg'))
+                                                <img src="{{ asset('storage/img/' . $payEmployee->emp_code. '.jpg')  }}"
+                                                     width="80px"/>
                                             @endif
 
                                             {{ $payEmployee->fio }}
                                         </td>
-                                        <td >{{ $payEmployee->position }}</td>
+                                        <td>{{ $payEmployee->position }}</td>
                                         <td>{{ $payEmployee->salary_amount }}</td>
                                         <td>{{ $payEmployee->advance }}</td>
                                         <td>{{ $payEmployee->month_duration }}</td>
@@ -177,17 +199,21 @@
                                     </tr>
                                 @endforeach
 
-                                <tr>
-                                    <td>Итого</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>{{ number_format($fullAdvance, 0, ' ', ' ') }}</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>{{ number_format($fullSalaryPay, 0, ' ', ' ') }}</td>
+                                <tr style="font-weight: bold">
+                                    <td colspan="5">Итого</td>
+                                    <td>{{ number_format($payEmployees->sum('advance'), 0, ' ', ' ') }}</td>
+                                    <td colspan="2"></td>
+                                    <td>{{ number_format($payEmployees->sum('salary_pay'), 0, ' ', ' ') }}</td>
                                 </tr>
+
+                            @endforeach
+
+                            <tr style="font-weight: bold">
+                                <td colspan="5" style="background: rgba(24,198,14,0.2)">Всего</td>
+                                <td style="background: rgba(24,198,14,0.2)">{{ number_format($fullAdvance, 0, ' ', ' ') }}</td>
+                                <td colspan="2" style="background: rgba(24,198,14,0.2)"></td>
+                                <td style="background: rgba(24,198,14,0.2)">{{ number_format($fullSalaryPay, 0, ' ', ' ') }}</td>
+                            </tr>
 
                             </tbody>
                         </table>
@@ -199,7 +225,8 @@
 
 </main><!-- End #main -->
 
-<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+        class="bi bi-arrow-up-short"></i></a>
 <!-- Vendor JS Files -->
 <script src="{{asset('assets/vendor/apexcharts/apexcharts.min.js')}}"></script>
 <script src="{{asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>

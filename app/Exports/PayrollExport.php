@@ -20,8 +20,10 @@ class PayrollExport implements FromView
         $fullAdvance = $salaryPayEmployees->sum('advance');
         $fullSalaryPay = $salaryPayEmployees->sum('salary_pay');
 
+        $groupedSalaryPayEmployees = $salaryPayEmployees->groupBy('department');
+
         return view('exports.payroll', [
-            'salaryPayEmployees' => $salaryPayEmployees,
+            'groupedSalaryPayEmployees' => $groupedSalaryPayEmployees,
             'fullAdvance' => $fullAdvance,
             'fullSalaryPay' => $fullSalaryPay,
             'startAt' => $this->startAt,
